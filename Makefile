@@ -55,7 +55,7 @@ tfdocs: $(TFDOCS)
 .PHONY: check-tfdocs
 check-tfdocs: $(TFDOCS)
 	@echo "Check if terraform docs are up to date."
-	@$(TFDOCS) --output-check . || (echo "README files are not up to date. Run 'make tfdocs'." && exit 1)
+	@$(TFDOCS) --config $(SRC_ROOT)/.terraform-docs.yaml --output-check . || (echo "README files are not up to date. Run 'make tfdocs'." && exit 1)
 
 .PHONY: contribute
 contribute:
