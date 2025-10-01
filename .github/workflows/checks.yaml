@@ -1,0 +1,50 @@
+# ELASTICSEARCH CONFIDENTIAL
+# __________________
+#
+#  Copyright Elasticsearch B.V. All rights reserved.
+#
+# NOTICE:  All information contained herein is, and remains
+# the property of Elasticsearch B.V. and its suppliers, if any.
+# The intellectual and technical concepts contained herein
+# are proprietary to Elasticsearch B.V. and its suppliers and
+# may be covered by U.S. and Foreign Patents, patents in
+# process, and are protected by trade secret or copyright
+# law.  Dissemination of this information or reproduction of
+# this material is strictly forbidden unless prior written
+# permission is obtained from Elasticsearch B.V.
+
+name: checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - name: Set up terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd #v3.1.2
+
+      - name: Set up Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        id: go-setup
+        with:
+          cache-dependency-path: "**/*.sum"
+          go-version-file: "./tools/go.mod"
+
+      # If there is no cache with the go tools, install them.
+      - name: Install tools
+        if: steps.go-setup.outputs.cache-hit != 'true'
+        run: |
+          make install-tools
+          
+      - name: Check all requirements are met
+        run: |
+          make checks
+
