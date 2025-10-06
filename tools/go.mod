@@ -3,7 +3,7 @@ module tools
 go 1.25.0
 
 require (
-	github.com/google/addlicense v1.1.1
+	github.com/google/addlicense v1.2.0
 	github.com/terraform-docs/terraform-docs v0.20.0
 	github.com/terraform-linters/tflint v0.59.1
 )
