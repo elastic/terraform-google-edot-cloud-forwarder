@@ -29,17 +29,11 @@ variable "elastic_api_key" {
   sensitive   = true
 }
 
-variable "image_name" {
-  description = "The collector image name."
+variable "image" {
+  description = "The collector image."
   type        = string
-  default     = "edot-cloud-forwarder"
-}
-
-variable "registry_name" {
-  description = "Name of the artifact registry where the collector container is."
-  type        = string
-  # TODO: set default to the actual registry name when this is mature
-  # or maybe not make this a variable at all
+  # TODO: set default to the actual image when this is ready
+  # default     = "docker.elastic.co/..."
 }
 
 variable "ecf_asset_prefix" {

@@ -26,7 +26,7 @@ output "elastic_api_key_version" {
 
 output "ecf_google_artifact_registry_docker_image_self_link_uri" {
   description = "URI of the ECF Docker image."
-  value       = data.google_artifact_registry_docker_image.ecf.self_link
+  value       = local.ecf_image_name
 }
 
 output "ecf_cloud_run_service_account_email" {
