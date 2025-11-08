@@ -28,7 +28,7 @@ resource "google_secret_manager_secret_version" "elastic_api_key" {
   # Note that this is not the secret_id, but the secret's resource idenitifier,
   # e.g. projects/{{project}}/secrets/{{secret_id}}
   secret      = google_secret_manager_secret.elastic_api_key.id
-  secret_data = var.elastic_api_key
+  secret_data_wo = var.elastic_api_key
 }
 
 resource "google_artifact_registry_repository" "ecf" {
