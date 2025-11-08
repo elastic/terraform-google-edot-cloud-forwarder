@@ -4,8 +4,9 @@ locals {
     strcontains(var.image, "gcr.io") || strcontains(var.image, "pkg.dev")
   )
 
-  # Don't create the artifact registry repository if the image is already from an artifact registry
-  should_create_artifact_registry_repository = !local.is_artifact_registry_image
+  # Unless forced, don't create the artifact registry repository 
+  #if the image is already from an artifact registry.
+  should_create_artifact_registry_repository = var.force_ecf_artifact_registry || !local.is_artifact_registry_image
 
   # use the pushed image if the artifact registry repository was created, 
   # otherwise use the original image
