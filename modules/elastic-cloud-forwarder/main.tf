@@ -58,11 +58,83 @@ resource "docker_tag" "tagged_w_dest" {
   target_image = "${google_artifact_registry_repository.ecf[0].location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.ecf[0].name}/${var.image}"
 }
 
+# Create a service account for pushing images to Artifact Registry
+resource "google_service_account" "artifact_registry_writer" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+
+  account_id = substr("${var.ecf_asset_prefix}-artifact-rgst-wr", 0, 30)
+  display_name = "Artifact Registry Writer"
+  description = "Service account for pushing ECF images to the ECF Artifact Registry"
+}
+
+# Grant the writer role to the service account for only this repository
+resource "google_artifact_registry_repository_iam_member" "artifact_registry_writer" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+
+  project = google_artifact_registry_repository.ecf[0].project
+  location = google_artifact_registry_repository.ecf[0].location
+  repository = google_artifact_registry_repository.ecf[0].name
+  role = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.artifact_registry_writer[0].email}"
+}
+
+# Get current user info 
+data "google_client_openid_userinfo" "me" {}
+
+# Grant the current user permission to create a temporary token
+# on behalf of the service account
+resource "google_service_account_iam_member" "impersonation_grant_for_sa_token_creation" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+
+  service_account_id = google_service_account.artifact_registry_writer[0].id
+  role = "roles/iam.serviceAccountTokenCreator"
+  member = "user:${data.google_client_openid_userinfo.me.email}"
+}
+
+# Wait for the current user's new permissions on the SA to propagate
+resource "terraform_data" "wait_for_service_account_impersonation_grant" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+  provisioner "local-exec" {
+    environment = {
+      IMPERSONATE_SERVICE_ACCOUNT = google_service_account.artifact_registry_writer[0].email
+    }
+    interpreter = ["/bin/bash", "-c"]
+    command     = "${path.module}/../../scripts/token_validity.sh"
+  }
+
+  depends_on = [google_service_account_iam_member.impersonation_grant_for_sa_token_creation]
+}
+
+# Create a temporary token to use the service account 
+# for image upload to the Artifact Registry (oauth2 access token)
+data "google_service_account_access_token" "artifact_registry_writer" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+
+  target_service_account = google_service_account.artifact_registry_writer[0].email
+  # proper scope ref: https://developers.google.com/identity/protocols/oauth2/scopes#artifactregistry
+  scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  lifetime = "900s" # 15 minutes
+
+  depends_on = [
+    terraform_data.wait_for_service_account_impersonation_grant
+  ]
+}
+
 # TODO: test and see if auth works for all this
 resource "docker_registry_image" "ecf_pushed_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
   name = docker_tag.tagged_w_dest[0].target_image
+  # Although counter-intuitive, since the registry will be destroyed,
+  # we don't want to try and delete the image as well.
+  # This can cause Terraform to error.
+  keep_remotely = true
+
+  auth_config {
+    address = "${var.region}-docker.pkg.dev"
+    username = "oauth2accesstoken"
+    password = data.google_service_account_access_token.artifact_registry_writer[0].access_token
+  }
 }
 
 # Create a service account to use in the google cloud run to grant the least
