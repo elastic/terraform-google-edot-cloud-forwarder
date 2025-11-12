@@ -58,3 +58,8 @@ output "dead_letter_topic_id" {
   description = "ID of the Pub/Sub dead letter topic."
   value       = google_pubsub_topic.dead_letter.id
 }
+
+output "logs_source_bucket_name" {
+  description = "Name of the GCS logs source bucket."
+  value       = locals.logs_source_bucket_name
+}
