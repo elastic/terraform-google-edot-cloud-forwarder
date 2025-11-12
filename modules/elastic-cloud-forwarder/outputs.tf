@@ -61,5 +61,5 @@ output "dead_letter_topic_id" {
 
 output "logs_source_bucket_name" {
   description = "Name of the GCS logs source bucket."
-  value       = locals.logs_source_bucket_name
+  value       = local.logs_source_bucket_name
 }
