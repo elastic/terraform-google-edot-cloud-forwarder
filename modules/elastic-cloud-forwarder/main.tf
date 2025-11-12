@@ -31,10 +31,10 @@ resource "google_secret_manager_secret_version" "elastic_api_key" {
   secret_data_wo = var.elastic_api_key
 }
 
-resource "google_artifact_registry_repository" "ecf" {
+resource "google_artifact_registry_repository" "ecftf" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
   location = var.region
-  repository_id = "${var.ecf_asset_prefix}-ecf"
+  repository_id = "${var.ecf_asset_prefix}-ecftf"
   description   = "Docker image registry for EDOT Cloud Forwarder"
   format        = "DOCKER"
 
@@ -43,19 +43,43 @@ resource "google_artifact_registry_repository" "ecf" {
   }
 }
 
-# Pull docker image from the public registry
-# Q: is the docker daemon available where needed?
+# Pre-pull image using gcloud auth if it requires authentication
+# This makes the image available locally for the docker_image resource
+# This workaround is needed because docker_image doesn't support auth directly
+resource "null_resource" "prepull_private_image" {
+  count = local.should_create_artifact_registry_repository && var.source_image_requires_auth ? 1 : 0
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      echo "Pre-pulling private image with gcloud authentication..."
+      gcloud auth configure-docker ${var.region}-docker.pkg.dev
+      docker pull ${var.image}
+    EOT
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+}
+
+# Pull docker image from registry (or use pre-pulled local image)
+# For public images, this pulls normally. For private images, it uses the pre-pulled local image.
+# This workaround is needed because docker_image doesn't support auth directly
 resource "docker_image" "ecf_public_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
   name = var.image
+  
+  # Ensure pre-pull completes first if needed
+  depends_on = [null_resource.prepull_private_image]
 }
 
 resource "docker_tag" "tagged_w_dest" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  source_image = docker_image.ecf_public_image[0].name
-  target_image = "${google_artifact_registry_repository.ecf[0].location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.ecf[0].name}/${var.image}"
+  source_image = docker_image.ecf_public_image[0].image_id
+  target_image = "${google_artifact_registry_repository.ecftf[0].location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.ecftf[0].name}/ecf:latest"
 }
 
 # Create a service account for pushing images to Artifact Registry
@@ -71,56 +95,41 @@ resource "google_service_account" "artifact_registry_writer" {
 resource "google_artifact_registry_repository_iam_member" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  project = google_artifact_registry_repository.ecf[0].project
-  location = google_artifact_registry_repository.ecf[0].location
-  repository = google_artifact_registry_repository.ecf[0].name
+  # TODO: see if we can remove project and location from here
+  project = google_artifact_registry_repository.ecftf[0].project
+  location = google_artifact_registry_repository.ecftf[0].location
+  repository = google_artifact_registry_repository.ecftf[0].name
   role = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.artifact_registry_writer[0].email}"
 }
 
-# Get current user info 
-data "google_client_openid_userinfo" "me" {}
-
-# Grant the current user permission to create a temporary token
-# on behalf of the service account
-resource "google_service_account_iam_member" "impersonation_grant_for_sa_token_creation" {
+# Create a long-lived service account key for pushing images to Artifact Registry
+resource "google_service_account_key" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
   service_account_id = google_service_account.artifact_registry_writer[0].id
-  role = "roles/iam.serviceAccountTokenCreator"
-  member = "user:${data.google_client_openid_userinfo.me.email}"
 }
 
-# Wait for the current user's new permissions on the SA to propagate
-resource "terraform_data" "wait_for_service_account_impersonation_grant" {
+# Create a secret to store the service account key in Secret Manager
+resource "google_secret_manager_secret" "artifact_registry_writer_key" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
-  provisioner "local-exec" {
-    environment = {
-      IMPERSONATE_SERVICE_ACCOUNT = google_service_account.artifact_registry_writer[0].email
-    }
-    interpreter = ["/bin/bash", "-c"]
-    command     = "${path.module}/../../scripts/token_validity.sh"
+
+  secret_id = "${var.ecf_asset_prefix}-artifact-registry-writer-key"
+  replication {
+    auto {}
   }
-
-  depends_on = [google_service_account_iam_member.impersonation_grant_for_sa_token_creation]
 }
 
-# Create a temporary token to use the service account 
-# for image upload to the Artifact Registry (oauth2 access token)
-data "google_service_account_access_token" "artifact_registry_writer" {
+# Store the service account key in Secret Manager
+resource "google_secret_manager_secret_version" "artifact_registry_writer_key" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  target_service_account = google_service_account.artifact_registry_writer[0].email
-  # proper scope ref: https://developers.google.com/identity/protocols/oauth2/scopes#artifactregistry
-  scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-  lifetime = "900s" # 15 minutes
-
-  depends_on = [
-    terraform_data.wait_for_service_account_impersonation_grant
-  ]
+  secret      = google_secret_manager_secret.artifact_registry_writer_key[0].id
+  # Note that the secret_data is the base64 encoded private key of the service account key
+  # we decode it here to be more directly usable
+  secret_data = base64decode(google_service_account_key.artifact_registry_writer[0].private_key)
 }
 
-# TODO: test and see if auth works for all this
 resource "docker_registry_image" "ecf_pushed_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
@@ -132,8 +141,10 @@ resource "docker_registry_image" "ecf_pushed_image" {
 
   auth_config {
     address = "${var.region}-docker.pkg.dev"
-    username = "oauth2accesstoken"
-    password = data.google_service_account_access_token.artifact_registry_writer[0].access_token
+    # special username literal:
+    # see: https://cloud.google.com/artifact-registry/docs/docker/authentication#json-key
+    username = "_json_key"
+    password = google_secret_manager_secret_version.artifact_registry_writer_key[0].secret_data
   }
 }
 
@@ -142,4 +153,14 @@ resource "docker_registry_image" "ecf_pushed_image" {
 resource "google_service_account" "cloud_run" {
   # limit to 30 characters long
   account_id = substr("${var.ecf_asset_prefix}-cloud-run", 0, 30)
+}
+
+# Grant Cloud Run service account permission to read from the module-managed artifact registry
+# This is only needed when the module creates its own registry
+resource "google_artifact_registry_repository_iam_member" "cloud_run_artifact_registry_reader" {
+  count = local.should_create_artifact_registry_repository ? 1 : 0
+
+  repository = google_artifact_registry_repository.ecftf[0].name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${google_service_account.cloud_run.email}"
 }
