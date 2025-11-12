@@ -148,3 +148,8 @@ resource "google_project_iam_member" "pubsub_permissions" {
   role    = "roles/run.invoker"
   member  = "serviceAccount:${google_service_account.pubsub.email}"
 }
+
+# Create Pub/Sub topic for logs.
+resource "google_pubsub_topic" "logs" {
+  name = "${var.ecf_asset_prefix}-logs-ecf"
+}

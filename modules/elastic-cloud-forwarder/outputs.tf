@@ -43,3 +43,13 @@ output "pubsub_google_service_account_email" {
   description = "Email of the Pub/Sub Google Service Account."
   value       = google_service_account.pubsub.email
 }
+
+output "logs_topic_id" {
+  description = "ID of the Pub/Sub logs topic."
+  value       = google_pubsub_topic.logs.id
+}
+
+output "logs_topic_name" {
+  description = "Name of the Pub/Sub logs topic."
+  value       = google_pubsub_topic.logs.name
+}
