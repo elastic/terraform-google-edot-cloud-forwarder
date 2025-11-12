@@ -158,3 +158,13 @@ resource "google_pubsub_topic" "logs" {
 resource "google_pubsub_topic" "dead_letter" {
   name = "${var.ecf_asset_prefix}-dead-letter-ecf"
 }
+
+# Create a GCS bucket for logs.
+resource "google_storage_bucket" "logs" {
+  count = var.logs_source_bucket_name == "" ? 1 : 0
+
+  name                        = local.logs_source_bucket_name
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}

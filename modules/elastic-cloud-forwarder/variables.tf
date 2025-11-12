@@ -48,3 +48,9 @@ variable "force_ecf_artifact_registry" {
   type        = bool
   default     = false
 }
+
+variable "logs_source_bucket_name" {
+  description = "The name of the GCS logs source bucket. If not provided, a new one will be created."
+  type        = string
+  default     = ""
+}
