@@ -153,3 +153,8 @@ resource "google_project_iam_member" "pubsub_permissions" {
 resource "google_pubsub_topic" "logs" {
   name = "${var.ecf_asset_prefix}-logs-ecf"
 }
+
+# Create Pub/Sub dead letter topic.
+resource "google_pubsub_topic" "dead_letter" {
+  name = "${var.ecf_asset_prefix}-dead-letter-ecf"
+}

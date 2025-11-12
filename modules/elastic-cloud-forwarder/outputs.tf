@@ -53,3 +53,8 @@ output "logs_topic_name" {
   description = "Name of the Pub/Sub logs topic."
   value       = google_pubsub_topic.logs.name
 }
+
+output "dead_letter_topic_id" {
+  description = "ID of the Pub/Sub dead letter topic."
+  value       = google_pubsub_topic.dead_letter.id
+}
