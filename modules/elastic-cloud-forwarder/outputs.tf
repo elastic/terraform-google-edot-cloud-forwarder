@@ -56,3 +56,8 @@ output "artifact_registry_writer_key_version" {
     : "ECF Terraform module did not create an Artifact Registry writer key"
   )
 }
+
+output "pubsub_google_service_account_email" {
+  description = "Email of the Pub/Sub Google Service Account."
+  value       = google_service_account.pubsub.email
+}
