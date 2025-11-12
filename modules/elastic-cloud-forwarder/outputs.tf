@@ -39,24 +39,6 @@ output "ecftf_managed_artifact_registry_used" {
   value       = local.should_create_artifact_registry_repository
 }
 
-output "artifact_registry_writer_key_secret_id" {
-  description = "Secret ID for the Artifact Registry writer service account key, if one was created (stored in Secret Manager)."
-  value = (
-    local.should_create_artifact_registry_repository
-    ? google_secret_manager_secret.artifact_registry_writer_key[0].secret_id
-    : "ECF Terraform module did not create an Artifact Registry writer key"
-  )
-}
-
-output "artifact_registry_writer_key_version" {
-  description = "Version of the Artifact Registry writer service account key, if one was created (stored in Secret Manager)."
-  value = (
-    local.should_create_artifact_registry_repository
-    ? google_secret_manager_secret_version.artifact_registry_writer_key[0].version
-    : "ECF Terraform module did not create an Artifact Registry writer key"
-  )
-}
-
 output "pubsub_google_service_account_email" {
   description = "Email of the Pub/Sub Google Service Account."
   value       = google_service_account.pubsub.email

@@ -84,26 +84,6 @@ resource "google_service_account_key" "artifact_registry_writer" {
   service_account_id = google_service_account.artifact_registry_writer[0].id
 }
 
-# Create a secret to store the service account key in Secret Manager
-resource "google_secret_manager_secret" "artifact_registry_writer_key" {
-  count = local.should_create_artifact_registry_repository ? 1 : 0
-
-  secret_id = "${var.ecf_asset_prefix}-artifact-registry-writer-key"
-  replication {
-    auto {}
-  }
-}
-
-# Store the service account key in Secret Manager
-resource "google_secret_manager_secret_version" "artifact_registry_writer_key" {
-  count = local.should_create_artifact_registry_repository ? 1 : 0
-
-  secret      = google_secret_manager_secret.artifact_registry_writer_key[0].id
-  # Note that the secret_data is the base64 encoded private key of the service account key
-  # we decode it here to be more directly usable
-  secret_data = base64decode(google_service_account_key.artifact_registry_writer[0].private_key)
-}
-
 resource "docker_registry_image" "ecf_pushed_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
@@ -114,11 +94,11 @@ resource "docker_registry_image" "ecf_pushed_image" {
   keep_remotely = true
 
   auth_config {
-    address = "${var.region}-docker.pkg.dev"
+    address = "${google_artifact_registry_repository.ecftf[0].location}-docker.pkg.dev"
     # special username literal:
     # see: https://cloud.google.com/artifact-registry/docs/docker/authentication#json-key
-    username = "_json_key"
-    password = google_secret_manager_secret_version.artifact_registry_writer_key[0].secret_data
+    username = "_json_key_base64"
+    password = google_service_account_key.artifact_registry_writer[0].private_key
   }
 }
 
