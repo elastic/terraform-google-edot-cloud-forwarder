@@ -43,36 +43,10 @@ resource "google_artifact_registry_repository" "ecftf" {
   }
 }
 
-# Pre-pull image using gcloud auth if it requires authentication
-# This makes the image available locally for the docker_image resource
-# This workaround is needed because docker_image doesn't support auth directly
-resource "null_resource" "prepull_private_image" {
-  count = local.should_create_artifact_registry_repository && var.source_image_requires_auth ? 1 : 0
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      set -e
-      echo "Pre-pulling private image with gcloud authentication..."
-      gcloud auth configure-docker ${var.region}-docker.pkg.dev
-      docker pull ${var.image}
-    EOT
-  }
-
-  triggers = {
-    always_run = timestamp()
-  }
-}
-
-# Pull docker image from registry (or use pre-pulled local image)
-# For public images, this pulls normally. For private images, it uses the pre-pulled local image.
-# This workaround is needed because docker_image doesn't support auth directly
+# Pull docker image from registry (or automatically use pre-pulled local image)
 resource "docker_image" "ecf_public_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
-
   name = var.image
-  
-  # Ensure pre-pull completes first if needed
-  depends_on = [null_resource.prepull_private_image]
 }
 
 resource "docker_tag" "tagged_w_dest" {

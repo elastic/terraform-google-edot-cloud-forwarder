@@ -48,9 +48,3 @@ variable "force_ecf_artifact_registry" {
   type        = bool
   default     = false
 }
-
-variable "source_image_requires_auth" {
-  description = "Whether the source image requires authentication to pull. If true, will use gcloud auth to pull the image before processing."
-  type        = bool
-  default     = false
-}
