@@ -167,3 +167,132 @@ resource "google_storage_bucket" "logs" {
   uniform_bucket_level_access = true
   force_destroy               = true
 }
+
+# Enable GCS notifications to PubSub
+resource "google_storage_notification" "notification" {
+  bucket         = local.logs_source_bucket_name
+  payload_format = "JSON_API_V1"
+  topic          = google_pubsub_topic.logs.id
+  # we only want to get a  notification when a new log file is created
+  event_types = ["OBJECT_FINALIZE"]
+  depends_on  = [
+    google_pubsub_topic_iam_binding.binding, 
+    google_storage_bucket.logs, 
+  ]
+}
+
+# Enable notifications by giving the correct IAM permission to the unique service account.
+# Leverage the project's unique google storage service account. This is needed for GCS operations.
+data "google_storage_project_service_account" "gcs_account" {}
+
+resource "google_pubsub_topic_iam_binding" "binding" {
+  topic   = google_pubsub_topic.logs.id
+  role    = "roles/pubsub.publisher"
+  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+}
+
+# Get current Google project data.
+data "google_project" "current" {}
+
+# Allow Pub/Sub to create tokens, as push requires authentication.
+resource "google_project_iam_member" "allow_token" {
+  project = var.project
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+# Deploy the cloud run service where ECF is running.
+resource "google_cloud_run_v2_service" "ecf" {
+  name                = "${var.ecf_asset_prefix}"
+  location            = var.region
+  deletion_protection = false
+  ingress             = "INGRESS_TRAFFIC_ALL"
+
+  scaling {
+    max_instance_count = var.max_ecf_instance_count
+  }
+
+  template {
+    service_account                  = google_service_account.cloud_run.email
+    max_instance_request_concurrency = var.max_instance_request_concurrency
+
+    containers {
+      name  = "ecf-collector"
+      image = local.ecf_image_name
+      args = [
+        # See https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/rfcs/component-universal-telemetry.md
+        var.enable_telemetry ? "--feature-gates=telemetry.newPipelineTelemetry" : "",
+      ]
+
+      resources {
+        limits = {
+          "cpu"    = var.ecf_container_cpu
+          "memory" = var.ecf_container_memory
+        }
+      }
+
+      ports {
+        container_port = 8080
+      }
+
+      env {
+        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+        value = var.ecf_exporter_endpoint
+      }
+
+      env {
+        name = "ELASTIC_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.elastic_api_key.secret_id
+            version = google_secret_manager_secret_version.elastic_api_key.version
+          }
+        }
+      }
+
+      env {
+        name  = "METRICS_LEVEL"
+        value = var.enable_telemetry ? "detailed" : "none"
+      }
+
+      env {
+        name  = "TELEMETRY_ENDPOINT"
+        value = var.telemetry_endpoint
+      }
+
+      env {
+        name  = "ES_MAPPING_MODE"
+        value = var.es_mapping_mode
+      }
+
+      env {
+        name  = "EXPORTER"
+        value = var.disable_exporter ? "nop" : "otlphttp"
+      }
+
+      env {
+        name = "TELEMETRY_API_KEY"
+        dynamic "value_source" {
+          for_each = var.enable_telemetry ? [1] : []
+          content {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.telemetry_api_key[0].secret_id
+              version = google_secret_manager_secret_version.telemetry_api_key[0].version
+            }
+          }
+        }
+      }
+
+      env {
+        name  = "ADDITIONAL_TELEMETRY_ATTR"
+        value = length(var.telemetry_additional_attributes) == 0 ? "" : yamlencode(var.telemetry_additional_attributes)
+      }
+    }
+  }
+
+  depends_on = [
+    google_secret_manager_secret_version.elastic_api_key,
+    google_secret_manager_secret_version.telemetry_api_key,
+    google_project_iam_member.cloud_run_permissions,
+  ]
+}

@@ -55,8 +55,83 @@ variable "logs_source_bucket_name" {
   default     = ""
 }
 
+variable "max_instance_request_concurrency" {
+  description = "How many concurrent requests the ECF collector can receive."
+  type        = number
+  default     = 80
+}
+
+variable "max_ecf_instance_count" {
+  description = "Maximum number of ECF serving instances."
+  type        = number
+  default     = 100
+}
+
+variable "ecf_exporter_endpoint" {
+  description = "ECF exporter endpoint."
+  type        = string
+  default     = ""
+}
+
+variable "disable_exporter" {
+  description = "Use a nop exporter."
+  type        = bool
+  default     = false
+}
+
+########################################################
+# Logging and Internal Telemetry
+########################################################
+
 variable "enable_cloud_observability_logging" {
   description = "Enable Cloud Run logging to GCP Logs Explorer. When enabled, grants the Cloud Run service account the 'roles/logging.logWriter' role. Note: This increases costs. Disabled by default."
   type        = bool
   default     = false
+}
+
+variable "enable_telemetry" {
+  description = "Whether to enable internal telemetry."
+  type        = bool
+  default     = false
+}
+
+variable "telemetry_endpoint" {
+  description = "Endpoint to send the internal telemetry to."
+  type        = string
+  default     = ""
+}
+
+variable "es_mapping_mode" {
+  description = "Mapping mode to use on the elasticsearch exporter. Only used if telemetry endpoint is for elasticsearch."
+  type        = string
+  default     = "otel"
+}
+
+variable "telemetry_additional_attributes" {
+  description = "Additional attributes to add to the internal telemetry."
+  type        = map(string)
+  default     = {}
+}
+
+variable "telemetry_api_key" {
+  description = "API key for the telemetry endpoint."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+#######################################################
+# Cloud Run Resource Limits
+#######################################################
+
+variable "ecf_container_memory" {
+  description = "ECF Cloud Run container memory. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum."
+  type        = string
+  default     = "512Mi"
+}
+
+variable "ecf_container_cpu" {
+  description = "ECF Cloud Run container CPU."
+  type        = string
+  default     = "1"
 }
