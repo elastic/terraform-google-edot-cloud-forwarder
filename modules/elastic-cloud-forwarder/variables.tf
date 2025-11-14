@@ -54,3 +54,9 @@ variable "logs_source_bucket_name" {
   type        = string
   default     = ""
 }
+
+variable "enable_cloud_observability_logging" {
+  description = "Enable Cloud Run logging to GCP Logs Explorer. When enabled, grants the Cloud Run service account the 'roles/logging.logWriter' role. Note: This increases costs. Disabled by default."
+  type        = bool
+  default     = false
+}
