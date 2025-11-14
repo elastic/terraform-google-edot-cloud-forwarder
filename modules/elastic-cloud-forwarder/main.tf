@@ -123,7 +123,6 @@ resource "google_artifact_registry_repository_iam_member" "cloud_run_artifact_re
 resource "google_project_iam_member" "cloud_run_permissions" {
 
   for_each = toset([
-    "roles/artifactregistry.reader",
     "roles/secretmanager.secretAccessor",
     "roles/logging.logWriter", # give permission to cloud run to write log entries so we can tail its logs
     "roles/storage.objectViewer",
