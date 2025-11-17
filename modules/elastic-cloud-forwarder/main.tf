@@ -31,10 +31,10 @@ resource "google_secret_manager_secret_version" "elastic_api_key" {
   secret_data_wo = var.elastic_api_key
 }
 
-resource "google_artifact_registry_repository" "ecftf" {
+resource "google_artifact_registry_repository" "ecf" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
   location = var.region
-  repository_id = "${var.ecf_asset_prefix}-ecftf"
+  repository_id = "${var.ecf_asset_prefix}-ecf"
   description   = "Docker image registry for EDOT Cloud Forwarder"
   format        = "DOCKER"
 
@@ -53,7 +53,7 @@ resource "docker_tag" "tagged_w_dest" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
   source_image = docker_image.ecf_public_image[0].image_id
-  target_image = "${google_artifact_registry_repository.ecftf[0].location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.ecftf[0].name}/ecf:latest"
+  target_image = "${google_artifact_registry_repository.ecf[0].location}-docker.pkg.dev/${var.project}/${google_artifact_registry_repository.ecf[0].name}/ecf:latest"
 }
 
 # Create a service account for pushing images to Artifact Registry
@@ -70,9 +70,9 @@ resource "google_artifact_registry_repository_iam_member" "artifact_registry_wri
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
   # TODO: see if we can remove project and location from here
-  project = google_artifact_registry_repository.ecftf[0].project
-  location = google_artifact_registry_repository.ecftf[0].location
-  repository = google_artifact_registry_repository.ecftf[0].name
+  project = google_artifact_registry_repository.ecf[0].project
+  location = google_artifact_registry_repository.ecf[0].location
+  repository = google_artifact_registry_repository.ecf[0].name
   role = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.artifact_registry_writer[0].email}"
 }
@@ -94,7 +94,7 @@ resource "docker_registry_image" "ecf_pushed_image" {
   keep_remotely = true
 
   auth_config {
-    address = "${google_artifact_registry_repository.ecftf[0].location}-docker.pkg.dev"
+    address = "${google_artifact_registry_repository.ecf[0].location}-docker.pkg.dev"
     # special username literal:
     # see: https://cloud.google.com/artifact-registry/docs/docker/authentication#json-key
     username = "_json_key_base64"
@@ -114,7 +114,7 @@ resource "google_service_account" "cloud_run" {
 resource "google_artifact_registry_repository_iam_member" "cloud_run_artifact_registry_reader" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  repository = google_artifact_registry_repository.ecftf[0].name
+  repository = google_artifact_registry_repository.ecf[0].name
   role       = "roles/artifactregistry.reader"
   member     = "serviceAccount:${google_service_account.cloud_run.email}"
 }

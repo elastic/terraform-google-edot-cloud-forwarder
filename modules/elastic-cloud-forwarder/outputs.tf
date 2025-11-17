@@ -34,7 +34,7 @@ output "ecf_cloud_run_service_account_email" {
   value       = google_service_account.cloud_run.email
 }
 
-output "ecftf_managed_artifact_registry_used" {
+output "ecf_managed_artifact_registry_used" {
   description = "Whether the ECF Terraform module used its own artifact registry."
   value       = local.should_create_artifact_registry_repository
 }
