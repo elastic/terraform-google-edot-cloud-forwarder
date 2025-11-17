@@ -78,3 +78,13 @@ output "google_cloud_run_v2_service_latest_created_revision" {
   description = "Revision of the google cloud run service"
   value = google_cloud_run_v2_service.ecf.latest_created_revision
 }
+
+output "logs_subscription_id" {
+  description = "ID of the Pub/Sub subscription for the logs topic."
+  value       = google_pubsub_subscription.logs.id
+}
+
+output "failed_messages_bucket_name" {
+  description = "Name of the GCS bucket to which failed messages are sent."
+  value       = google_storage_bucket.failed_messages.name
+}

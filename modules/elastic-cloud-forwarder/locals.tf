@@ -21,4 +21,6 @@ locals {
     ? "${var.ecf_asset_prefix}-logs-ecf"
     : var.logs_source_bucket_name
   )
+
+  pubsub_service_account = "service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
 }

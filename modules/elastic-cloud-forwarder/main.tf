@@ -296,3 +296,102 @@ resource "google_cloud_run_v2_service" "ecf" {
     google_project_iam_member.cloud_run_permissions,
   ]
 }
+
+# The Cloud Pub/Sub service account for this project needs the publisher role to
+# publish dead-lettered messages to the dead letter topic.
+resource "google_pubsub_topic_iam_binding" "dead_letter_publisher" {
+  topic   = google_pubsub_topic.dead_letter.id
+  role    = "roles/pubsub.publisher"
+  members = ["serviceAccount:${local.pubsub_service_account}"]
+}
+
+# Trigger cloud run when message is published on the Pub/Sub topic.
+resource "google_pubsub_subscription" "logs" {
+  name  = "${var.ecf_asset_prefix}-logs-ecf"
+  topic = google_pubsub_topic.logs.id
+
+  push_config {
+    push_endpoint =  google_cloud_run_v2_service.ecf.uri
+    oidc_token {
+      service_account_email = google_service_account.pubsub.email
+    }
+  }
+
+  # never let this subscription expire
+  expiration_policy {
+    ttl = ""
+  }
+
+  # give ECF the maximum allowed time to consume messages, so that Pub/Sub
+  # does not keep retrying sending a message, making ECF process the same
+  # logs multiple times in a loop
+  ack_deadline_seconds = 600
+
+  retry_policy {
+    minimum_backoff = "${var.retry_minimum_backoff}s"
+    maximum_backoff = "${var.retry_maximum_backoff}s"
+  }
+
+  dead_letter_policy {
+    max_delivery_attempts = var.retry_maximum_attempts
+    dead_letter_topic     = google_pubsub_topic.dead_letter.id
+  }
+
+  depends_on = [
+    google_project_iam_member.pubsub_permissions
+  ]
+}
+
+resource "google_pubsub_subscription_iam_member" "dead_letter_subscriber" {
+
+  subscription = google_pubsub_subscription.logs.id
+  role         = "roles/pubsub.subscriber"
+  member       = "serviceAccount:${local.pubsub_service_account}"
+}
+
+# Create a GCS bucket for failed messages.
+resource "google_storage_bucket" "failed_messages" {
+  name                        = "${var.ecf_asset_prefix}-failed"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+# Add permissions to place files in the GCS bucket meant for failed messages.
+resource "google_storage_bucket_iam_member" "failed_messages_permissions" {
+  for_each = toset([
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectCreator",
+  ])
+
+  bucket = google_storage_bucket.failed_messages.name
+  role   = each.key
+  member = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+}
+
+# Define the dead letter Pub/Sub subscription.
+resource "google_pubsub_subscription" "dead_letter" {
+  name  = "${var.ecf_asset_prefix}-dead-letter-ecf"
+  topic = google_pubsub_topic.dead_letter.id
+
+  cloud_storage_config {
+    bucket = google_storage_bucket.failed_messages.name
+
+    max_duration = "${var.dead_letter_to_gcs_interval}s"
+
+    # TODO Maybe we should give the customer the option for avro files.
+    # See: https://cloud.google.com/pubsub/docs/create-cloudstorage-subscription#file_format
+    # Check TF: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_subscription
+    # The customer would then be able to see metadata, like subscription, message ID, etc.
+    # Files are bigger in size as well (-> more costly).
+  }
+
+  # never let this subscription expire
+  expiration_policy {
+    ttl = ""
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.failed_messages_permissions
+  ]
+}

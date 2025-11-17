@@ -79,6 +79,17 @@ variable "disable_exporter" {
   default     = false
 }
 
+variable "dead_letter_to_gcs_interval" {
+  description = "The maximum interval for flushing a failed message from the dead letter topic to GCS, in seconds."
+  type        = number
+  default     = 60
+
+  validation {
+    error_message = "Maximum duration must be between 60 and 600 seconds."
+    condition     = var.dead_letter_to_gcs_interval >= 60 && var.dead_letter_to_gcs_interval <= 600
+  }
+}
+
 ########################################################
 # Logging and Internal Telemetry
 ########################################################
@@ -134,4 +145,41 @@ variable "ecf_container_cpu" {
   description = "ECF Cloud Run container CPU."
   type        = string
   default     = "1"
+}
+
+#######################################################
+# Pub/Sub Retry Policy
+#######################################################
+
+variable "retry_minimum_backoff" {
+  description = "The minimum delay between consecutive deliveries of a given message to ECF collector, in seconds."
+  type        = number
+  default     = 10
+
+  validation {
+    error_message = "Retry minimum backoff must have a value between 0 and 600."
+    condition     = var.retry_minimum_backoff >= 0 && var.retry_minimum_backoff <= 600
+  }
+}
+
+variable "retry_maximum_backoff" {
+  description = "The maximum delay between consecutive deliveries of a given message to ECF collector, in seconds."
+  type        = number
+  default     = 60
+
+  validation {
+    error_message = "Retry maximum backoff must have a value between 0 and 600, and equal or higher than retry_minimum_backoff."
+    condition     = var.retry_maximum_backoff >= 0 && var.retry_maximum_backoff <= 600 && var.retry_maximum_backoff >= var.retry_minimum_backoff
+  }
+}
+
+variable "retry_maximum_attempts" {
+  description = "The maximum attempts to deliver a given message to ECF collector."
+  type        = number
+  default     = 5
+
+  validation {
+    error_message = "Retry maximum attempts must have a value between 5 and 100."
+    condition     = var.retry_maximum_attempts >= 5 && var.retry_maximum_attempts <= 100
+  }
 }
