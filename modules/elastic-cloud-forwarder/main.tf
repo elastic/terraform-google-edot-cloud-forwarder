@@ -264,6 +264,15 @@ resource "google_cloud_run_v2_service" "ecf" {
         name  = "ES_MAPPING_MODE"
         value = var.es_mapping_mode
       }
+      env {
+        name  = "INCLUDE_METADATA"
+        value = var.include_metadata
+      }
+
+      env {
+        name  = "PROCESSORS_LIST"
+        value = var.include_metadata ? "[\"attributes\"]" : "[]"
+      }
 
       env {
         name  = "EXPORTER"

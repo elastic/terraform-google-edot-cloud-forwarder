@@ -118,6 +118,13 @@ variable "es_mapping_mode" {
   default     = "otel"
 }
 
+variable "include_metadata" {
+  description = "Whether to add extra metadata to the telemetry (bucket, object, subscription, message ID, delivery attempt)."
+  type        = bool
+  default     = false
+}
+
+
 variable "telemetry_additional_attributes" {
   description = "Additional attributes to add to the internal telemetry."
   type        = map(string)
