@@ -69,7 +69,6 @@ resource "google_service_account" "artifact_registry_writer" {
 resource "google_artifact_registry_repository_iam_member" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  # TODO: see if we can remove project and location from here
   project = google_artifact_registry_repository.ecf[0].project
   location = google_artifact_registry_repository.ecf[0].location
   repository = google_artifact_registry_repository.ecf[0].name
