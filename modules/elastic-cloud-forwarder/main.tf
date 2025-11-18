@@ -122,13 +122,21 @@ resource "google_artifact_registry_repository_iam_member" "cloud_run_artifact_re
 resource "google_project_iam_member" "cloud_run_permissions" {
 
   for_each = toset(compact([
-    "roles/secretmanager.secretAccessor",
     var.enable_cloud_observability_logging ? "roles/logging.logWriter" : "", # give permission to cloud run to write log entries so we can tail its logs
     "roles/storage.objectViewer",
   ]))
 
   project = var.project
   role    = each.key
+  member  = "serviceAccount:${google_service_account.cloud_run.email}"
+}
+
+# Grant permissions to cloud run service account for Elastic API key
+resource "google_secret_manager_secret_iam_member" "elastic_api_key" {
+
+  project = google_secret_manager_secret.elastic_api_key.project
+  secret_id = google_secret_manager_secret.elastic_api_key.secret_id
+  role = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
@@ -139,10 +147,12 @@ resource "google_service_account" "pubsub" {
   account_id = substr("${var.ecf_asset_prefix}-pubsub", 0, 30)
 }
 
-# Grant permissions to ECF service account.
-resource "google_project_iam_member" "pubsub_permissions" {
+# Grant permissions to pubsub to invoke cloud run
+resource "google_cloud_run_v2_service_iam_member" "pubsub_permissions" {
 
-  project = var.project
+  project = google_cloud_run_v2_service.ecf.project
+  location = google_cloud_run_v2_service.ecf.location
+  name = google_cloud_run_v2_service.ecf.name
   role    = "roles/run.invoker"
   member  = "serviceAccount:${google_service_account.pubsub.email}"
 }
@@ -346,7 +356,7 @@ resource "google_pubsub_subscription" "logs" {
   }
 
   depends_on = [
-    google_project_iam_member.pubsub_permissions
+    google_cloud_run_v2_service_iam_member.pubsub_permissions
   ]
 }
 
