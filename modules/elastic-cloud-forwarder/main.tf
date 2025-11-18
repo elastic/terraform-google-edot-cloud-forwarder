@@ -25,7 +25,7 @@ resource "google_secret_manager_secret" "elastic_api_key" {
 
 # Resource to save the API key in the secret.
 resource "google_secret_manager_secret_version" "elastic_api_key" {
-  # Note that this is not the secret_id, but the secret's resource idenitifier,
+# Note that this is not the secret_id, but the secret's resource identifier,
   # e.g. projects/{{project}}/secrets/{{secret_id}}
   secret      = google_secret_manager_secret.elastic_api_key.id
   secret_data_wo = var.elastic_api_key
