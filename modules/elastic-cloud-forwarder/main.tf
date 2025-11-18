@@ -123,7 +123,6 @@ resource "google_project_iam_member" "cloud_run_permissions" {
 
   for_each = toset(compact([
     var.enable_cloud_observability_logging ? "roles/logging.logWriter" : "", # give permission to cloud run to write log entries so we can tail its logs
-    "roles/storage.objectViewer",
   ]))
 
   project = var.project
@@ -131,7 +130,17 @@ resource "google_project_iam_member" "cloud_run_permissions" {
   member  = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
-# Grant permissions to cloud run service account for Elastic API key
+# Grant permission to the cloud run service account on the source bucket
+resource "google_storage_bucket_iam_member" "cloud_run_permissions" {
+  bucket = local.logs_source_bucket_name
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.cloud_run.email}"
+  timeouts {
+    create = "5m"
+  }
+}
+
+# Grant permission to cloud run service account for Elastic API key
 resource "google_secret_manager_secret_iam_member" "elastic_api_key" {
 
   project = google_secret_manager_secret.elastic_api_key.project
