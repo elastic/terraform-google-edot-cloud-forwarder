@@ -55,6 +55,7 @@ resource "docker_image" "ecf_public_image" {
   name  = var.image
 }
 
+# Give the image its target image (path and name) so it can be uploaded by docker_registry_image
 resource "docker_tag" "tagged_w_dest" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
@@ -89,6 +90,7 @@ resource "google_service_account_key" "artifact_registry_writer" {
   service_account_id = google_service_account.artifact_registry_writer[0].id
 }
 
+# Push image to this module's artifact registry
 resource "docker_registry_image" "ecf_pushed_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
