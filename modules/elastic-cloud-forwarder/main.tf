@@ -49,15 +49,15 @@ resource "google_artifact_registry_repository" "ecf" {
   }
 
   cleanup_policies {
-      id     = "keep-last-3-used"
-      action = "KEEP"
+    id     = "keep-last-3-used"
+    action = "KEEP"
 
-      most_recent_versions {
-        # This ensures the 3 most recently pushed/tagged images are kept.
-        package_name_prefixes = ["*"] # all images
-        keep_count = 3
-      }
+    most_recent_versions {
+      # This ensures the 3 most recently pushed/tagged images are kept.
+      package_name_prefixes = ["*"] # all images
+      keep_count            = 3
     }
+  }
 }
 
 # Pull docker image from registry (or automatically use pre-pulled local image)
@@ -220,8 +220,8 @@ resource "google_storage_notification" "notification" {
 data "google_storage_project_service_account" "gcs_account" {}
 
 resource "google_pubsub_topic_iam_member" "allow_storage_to_pubsub" {
-  topic   = google_pubsub_topic.logs.id
-  role    = "roles/pubsub.publisher"
+  topic  = google_pubsub_topic.logs.id
+  role   = "roles/pubsub.publisher"
   member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
 }
 
@@ -347,8 +347,8 @@ resource "google_cloud_run_v2_service" "ecf" {
 # The Cloud Pub/Sub service account for this project needs the publisher role to
 # publish dead-lettered messages to the dead letter topic.
 resource "google_pubsub_topic_iam_member" "dead_letter_publisher" {
-  topic   = google_pubsub_topic.dead_letter.id
-  role    = "roles/pubsub.publisher"
+  topic  = google_pubsub_topic.dead_letter.id
+  role   = "roles/pubsub.publisher"
   member = "serviceAccount:${local.pubsub_service_account}"
 }
 
@@ -413,7 +413,7 @@ resource "google_storage_bucket_iam_member" "failed_messages_permissions" {
 
   bucket = google_storage_bucket.failed_messages.name
   role   = each.key
-  member  = "serviceAccount:${local.pubsub_service_account}"
+  member = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # Define the dead letter Pub/Sub subscription.
