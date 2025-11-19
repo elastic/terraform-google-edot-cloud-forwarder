@@ -232,7 +232,7 @@ data "google_project" "current" {}
 resource "google_project_iam_member" "allow_token" {
   project = var.project
   role    = "roles/iam.serviceAccountTokenCreator"
-  member  = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  member  = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # Deploy the cloud run service where ECF is running.
@@ -409,7 +409,7 @@ resource "google_storage_bucket_iam_member" "failed_messages_permissions" {
 
   bucket = google_storage_bucket.failed_messages.name
   role   = each.key
-  member = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  member  = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # Define the dead letter Pub/Sub subscription.
