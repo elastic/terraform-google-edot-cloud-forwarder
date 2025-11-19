@@ -126,15 +126,12 @@ resource "google_artifact_registry_repository_iam_member" "cloud_run_artifact_re
   member     = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
-# Grant permissions to cloud run service account.
+# Give permission to cloud run to write log entries so we can tail its logs
 resource "google_project_iam_member" "cloud_run_permissions" {
-
-  for_each = toset(compact([
-    var.enable_cloud_observability_logging ? "roles/logging.logWriter" : "", # give permission to cloud run to write log entries so we can tail its logs
-  ]))
+  count = var.enable_cloud_observability_logging ? 1 : 0
 
   project = var.project
-  role    = each.key
+  role    = "roles/logging.logWriter"
   member  = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
