@@ -210,7 +210,7 @@ resource "google_storage_notification" "notification" {
   # we only want to get a  notification when a new log file is created
   event_types = ["OBJECT_FINALIZE"]
   depends_on = [
-    google_pubsub_topic_iam_binding.binding,
+    google_pubsub_topic_iam_member.allow_storage_to_pubsub,
     google_storage_bucket.logs,
   ]
 }
@@ -219,10 +219,10 @@ resource "google_storage_notification" "notification" {
 # Leverage the project's unique google storage service account. This is needed for GCS operations.
 data "google_storage_project_service_account" "gcs_account" {}
 
-resource "google_pubsub_topic_iam_binding" "binding" {
+resource "google_pubsub_topic_iam_member" "allow_storage_to_pubsub" {
   topic   = google_pubsub_topic.logs.id
   role    = "roles/pubsub.publisher"
-  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
+  member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
 }
 
 # Get current Google project data.
@@ -342,10 +342,10 @@ resource "google_cloud_run_v2_service" "ecf" {
 
 # The Cloud Pub/Sub service account for this project needs the publisher role to
 # publish dead-lettered messages to the dead letter topic.
-resource "google_pubsub_topic_iam_binding" "dead_letter_publisher" {
+resource "google_pubsub_topic_iam_member" "dead_letter_publisher" {
   topic   = google_pubsub_topic.dead_letter.id
   role    = "roles/pubsub.publisher"
-  members = ["serviceAccount:${local.pubsub_service_account}"]
+  member = "serviceAccount:${local.pubsub_service_account}"
 }
 
 # Trigger cloud run when message is published on the Pub/Sub topic.
