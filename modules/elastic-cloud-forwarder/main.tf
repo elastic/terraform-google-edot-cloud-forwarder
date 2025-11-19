@@ -25,15 +25,15 @@ resource "google_secret_manager_secret" "elastic_api_key" {
 
 # Resource to save the API key in the secret.
 resource "google_secret_manager_secret_version" "elastic_api_key" {
-# Note that this is not the secret_id, but the secret's resource identifier,
+  # Note that this is not the secret_id, but the secret's resource identifier,
   # e.g. projects/{{project}}/secrets/{{secret_id}}
-  secret      = google_secret_manager_secret.elastic_api_key.id
+  secret         = google_secret_manager_secret.elastic_api_key.id
   secret_data_wo = var.elastic_api_key
 }
 
 resource "google_artifact_registry_repository" "ecf" {
-  count = local.should_create_artifact_registry_repository ? 1 : 0
-  location = var.region
+  count         = local.should_create_artifact_registry_repository ? 1 : 0
+  location      = var.region
   repository_id = "${var.ecf_asset_prefix}-ecf"
   description   = "Docker image registry for EDOT Cloud Forwarder"
   format        = "DOCKER"
@@ -46,7 +46,7 @@ resource "google_artifact_registry_repository" "ecf" {
 # Pull docker image from registry (or automatically use pre-pulled local image)
 resource "docker_image" "ecf_public_image" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
-  name = var.image
+  name  = var.image
 }
 
 resource "docker_tag" "tagged_w_dest" {
@@ -60,20 +60,20 @@ resource "docker_tag" "tagged_w_dest" {
 resource "google_service_account" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  account_id = substr("${var.ecf_asset_prefix}-artifact-rgst-wr", 0, 30)
+  account_id   = substr("${var.ecf_asset_prefix}-artifact-rgst-wr", 0, 30)
   display_name = "Artifact Registry Writer"
-  description = "Service account for pushing ECF images to the ECF Artifact Registry"
+  description  = "Service account for pushing ECF images to the ECF Artifact Registry"
 }
 
 # Grant the writer role to the service account for only this repository
 resource "google_artifact_registry_repository_iam_member" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  project = google_artifact_registry_repository.ecf[0].project
-  location = google_artifact_registry_repository.ecf[0].location
+  project    = google_artifact_registry_repository.ecf[0].project
+  location   = google_artifact_registry_repository.ecf[0].location
   repository = google_artifact_registry_repository.ecf[0].name
-  role = "roles/artifactregistry.writer"
-  member  = "serviceAccount:${google_service_account.artifact_registry_writer[0].email}"
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.artifact_registry_writer[0].email}"
 }
 
 # Create a long-lived service account key for pushing images to Artifact Registry
@@ -133,7 +133,7 @@ resource "google_project_iam_member" "cloud_run_permissions" {
 # Grant permission to the cloud run service account on the source bucket
 resource "google_storage_bucket_iam_member" "cloud_run_permissions" {
   bucket = local.logs_source_bucket_name
-  role = "roles/storage.objectViewer"
+  role   = "roles/storage.objectViewer"
   member = "serviceAccount:${google_service_account.cloud_run.email}"
   timeouts {
     create = "5m"
@@ -143,15 +143,15 @@ resource "google_storage_bucket_iam_member" "cloud_run_permissions" {
 # Grant permission to cloud run service account for Elastic API key
 resource "google_secret_manager_secret_iam_member" "elastic_api_key" {
 
-  project = google_secret_manager_secret.elastic_api_key.project
+  project   = google_secret_manager_secret.elastic_api_key.project
   secret_id = google_secret_manager_secret.elastic_api_key.secret_id
-  role = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.cloud_run.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
 # Create a service account to use in the Pub/Sub subscription.
 resource "google_service_account" "pubsub" {
-  
+
   # limit to 30 characters long
   account_id = substr("${var.ecf_asset_prefix}-pubsub", 0, 30)
 }
@@ -159,11 +159,11 @@ resource "google_service_account" "pubsub" {
 # Grant permissions to pubsub to invoke cloud run
 resource "google_cloud_run_v2_service_iam_member" "pubsub_permissions" {
 
-  project = google_cloud_run_v2_service.ecf.project
+  project  = google_cloud_run_v2_service.ecf.project
   location = google_cloud_run_v2_service.ecf.location
-  name = google_cloud_run_v2_service.ecf.name
-  role    = "roles/run.invoker"
-  member  = "serviceAccount:${google_service_account.pubsub.email}"
+  name     = google_cloud_run_v2_service.ecf.name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.pubsub.email}"
 }
 
 # Create Pub/Sub topic for logs.
@@ -193,9 +193,9 @@ resource "google_storage_notification" "notification" {
   topic          = google_pubsub_topic.logs.id
   # we only want to get a  notification when a new log file is created
   event_types = ["OBJECT_FINALIZE"]
-  depends_on  = [
-    google_pubsub_topic_iam_binding.binding, 
-    google_storage_bucket.logs, 
+  depends_on = [
+    google_pubsub_topic_iam_binding.binding,
+    google_storage_bucket.logs,
   ]
 }
 
@@ -338,7 +338,7 @@ resource "google_pubsub_subscription" "logs" {
   topic = google_pubsub_topic.logs.id
 
   push_config {
-    push_endpoint =  google_cloud_run_v2_service.ecf.uri
+    push_endpoint = google_cloud_run_v2_service.ecf.uri
     oidc_token {
       service_account_email = google_service_account.pubsub.email
     }

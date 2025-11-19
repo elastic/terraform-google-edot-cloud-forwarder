@@ -66,17 +66,17 @@ output "logs_source_bucket_name" {
 
 output "google_cloud_run_v2_service_name" {
   description = "Name of the google cloud run service"
-  value = google_cloud_run_v2_service.ecf.name
+  value       = google_cloud_run_v2_service.ecf.name
 }
 
 output "google_cloud_run_v2_service_uri" {
   description = "URI of the google cloud run service"
-  value = google_cloud_run_v2_service.ecf.uri
+  value       = google_cloud_run_v2_service.ecf.uri
 }
 
 output "google_cloud_run_v2_service_latest_created_revision" {
   description = "Revision of the google cloud run service"
-  value = google_cloud_run_v2_service.ecf.latest_created_revision
+  value       = google_cloud_run_v2_service.ecf.latest_created_revision
 }
 
 output "logs_subscription_id" {

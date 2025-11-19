@@ -17,7 +17,7 @@ locals {
   )
 
   logs_source_bucket_name = (
-    var.logs_source_bucket_name == "" 
+    var.logs_source_bucket_name == ""
     ? "${var.ecf_asset_prefix}-logs-ecf"
     : var.logs_source_bucket_name
   )

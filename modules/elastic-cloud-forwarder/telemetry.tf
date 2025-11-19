@@ -19,8 +19,8 @@ resource "google_secret_manager_secret_version" "telemetry_api_key" {
 resource "google_secret_manager_secret_iam_member" "telemetry_api_key" {
   count = var.enable_telemetry ? 1 : 0
 
-  project = google_secret_manager_secret.telemetry_api_key[0].project
+  project   = google_secret_manager_secret.telemetry_api_key[0].project
   secret_id = google_secret_manager_secret.telemetry_api_key[0].secret_id
-  role = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.cloud_run.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloud_run.email}"
 }
