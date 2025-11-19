@@ -73,12 +73,6 @@ variable "ecf_exporter_endpoint" {
   default     = ""
 }
 
-variable "disable_exporter" {
-  description = "Use a nop exporter."
-  type        = bool
-  default     = false
-}
-
 variable "dead_letter_to_gcs_interval" {
   description = "The maximum interval for flushing a failed message from the dead letter topic to GCS, in seconds."
   type        = number
