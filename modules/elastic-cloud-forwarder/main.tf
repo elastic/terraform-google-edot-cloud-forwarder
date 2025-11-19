@@ -221,7 +221,7 @@ resource "google_project_iam_member" "allow_token" {
 
 # Deploy the cloud run service where ECF is running.
 resource "google_cloud_run_v2_service" "ecf" {
-  name                = "${var.ecf_asset_prefix}"
+  name                = var.ecf_asset_prefix
   location            = var.region
   deletion_protection = false
   ingress             = "INGRESS_TRAFFIC_ALL"
