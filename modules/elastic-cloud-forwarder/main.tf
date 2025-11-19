@@ -31,6 +31,12 @@ resource "google_secret_manager_secret_version" "elastic_api_key" {
   secret_data_wo = var.elastic_api_key
 }
 
+# Create a standard artifact registry to store the ECF image.
+# We use a Standard Repository (not a Remote) to create an immutable 
+# snapshot of the ECF image. This guarantees:
+# - Protection against Docker Hub rate limits and outages.
+# - Immutability, ensuring the deployed image digest never changes, 
+#    even if the upstream registry overwrites a tag.
 resource "google_artifact_registry_repository" "ecf" {
   count         = local.should_create_artifact_registry_repository ? 1 : 0
   location      = var.region
