@@ -337,6 +337,10 @@ resource "google_cloud_run_v2_service" "ecf" {
     google_secret_manager_secret_version.elastic_api_key,
     google_secret_manager_secret_version.telemetry_api_key,
     google_project_iam_member.cloud_run_permissions,
+    google_storage_bucket_iam_member.cloud_run_permissions,
+    google_secret_manager_secret_iam_member.elastic_api_key,
+    google_secret_manager_secret_iam_member.telemetry_api_key,
+    google_artifact_registry_repository_iam_member.cloud_run_artifact_registry_reader,
   ]
 }
 
