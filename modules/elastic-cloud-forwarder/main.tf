@@ -47,6 +47,17 @@ resource "google_artifact_registry_repository" "ecf" {
   provisioner "local-exec" {
     command = "gcloud auth configure-docker ${var.region}-docker.pkg.dev"
   }
+
+  cleanup_policies {
+      id     = "keep-last-3-used"
+      action = "KEEP"
+
+      most_recent_versions {
+        # This ensures the 3 most recently pushed/tagged images are kept.
+        package_name_prefixes = ["*"] # all images
+        keep_count = 3
+      }
+    }
 }
 
 # Pull docker image from registry (or automatically use pre-pulled local image)
