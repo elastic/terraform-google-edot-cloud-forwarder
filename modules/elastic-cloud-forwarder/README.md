@@ -69,10 +69,10 @@ No modules.
 | <a name="input_elastic_api_key"></a> [elastic_api_key](#input_elastic_api_key) | Elastic API key for exporting logs via the Elastic Cloud Forwarder. | `string` |
 | <a name="input_enable_cloud_observability_logging"></a> [enable_cloud_observability_logging](#input_enable_cloud_observability_logging) | Enable Cloud Run logging to GCP Logs Explorer. When enabled, grants the Cloud Run service account the 'roles/logging.logWriter' role. Note: This increases costs. Disabled by default. | `bool` |
 | <a name="input_enable_telemetry"></a> [enable_telemetry](#input_enable_telemetry) | Whether to enable internal telemetry. | `bool` |
-| <a name="input_es_mapping_mode"></a> [es_mapping_mode](#input_es_mapping_mode) | Mapping mode to use on the elasticsearch exporter. Only used if telemetry endpoint is for elasticsearch. | `string` |
+| <a name="input_es_mapping_mode"></a> [es_mapping_mode](#input_es_mapping_mode) | Mapping mode to use on the otlphttp exporter. Only used if telemetry endpoint is for elasticsearch. | `string` |
 | <a name="input_force_ecf_artifact_registry"></a> [force_ecf_artifact_registry](#input_force_ecf_artifact_registry) | Force the use of the Artifact Registry managed by this module for the ECF image. | `bool` |
 | <a name="input_image"></a> [image](#input_image) | The collector image. | `string` |
-| <a name="input_include_metadata"></a> [include_metadata](#input_include_metadata) | Whether to add extra metadata to the telemetry (bucket, object, subscription, message ID, delivery attempt). | `bool` |
+| <a name="input_include_metadata"></a> [include_metadata](#input_include_metadata) | Whether to add extra metadata to the logs (bucket, object, subscription, message ID, delivery attempt). | `bool` |
 | <a name="input_logs_source_bucket_name"></a> [logs_source_bucket_name](#input_logs_source_bucket_name) | The name of the GCS logs source bucket. If not provided, a new one will be created. | `string` |
 | <a name="input_max_ecf_instance_count"></a> [max_ecf_instance_count](#input_max_ecf_instance_count) | Maximum number of ECF serving instances. | `number` |
 | <a name="input_max_instance_request_concurrency"></a> [max_instance_request_concurrency](#input_max_instance_request_concurrency) | How many concurrent requests the ECF collector can receive. | `number` |
