@@ -113,7 +113,7 @@ variable "es_mapping_mode" {
 }
 
 variable "include_metadata" {
-  description = "Whether to add extra metadata to the telemetry (bucket, object, subscription, message ID, delivery attempt)."
+  description = "Whether to add extra metadata to the logs (bucket, object, subscription, message ID, delivery attempt)."
   type        = bool
   default     = false
 }
