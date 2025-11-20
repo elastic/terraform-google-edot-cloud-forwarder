@@ -107,7 +107,7 @@ variable "telemetry_endpoint" {
 }
 
 variable "es_mapping_mode" {
-  description = "Mapping mode to use on the elasticsearch exporter. Only used if telemetry endpoint is for elasticsearch."
+  description = "Mapping mode to use on the otlphttp exporter. Only used if telemetry endpoint is for elasticsearch."
   type        = string
   default     = "otel"
 }
