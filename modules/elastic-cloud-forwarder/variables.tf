@@ -147,7 +147,7 @@ variable "ecf_cpu_idle" {
 variable "max_instance_request_concurrency" {
   description = "How many concurrent requests the ECF collector can receive."
   type        = number
-  default     = 80
+  default     = 10
 }
 
 variable "max_ecf_instance_count" {
