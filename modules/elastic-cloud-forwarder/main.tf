@@ -16,7 +16,7 @@
 # We need a secret in which to save the API key from the serverless project.
 # Note that the "version" in google_secret_manager_secret_version actually
 # receives the secret_data
-resource "google_secret_manager_secret" "elastic_api_key" {
+resource "google_secret_manager_secret" "exporter_api_key" {
   secret_id = "${var.ecf_asset_prefix}-elastic-api-key"
   replication {
     auto {}
@@ -24,11 +24,11 @@ resource "google_secret_manager_secret" "elastic_api_key" {
 }
 
 # Resource to save the API key in the secret.
-resource "google_secret_manager_secret_version" "elastic_api_key" {
+resource "google_secret_manager_secret_version" "exporter_api_key" {
   # Note that this is not the secret_id, but the secret's resource identifier,
   # e.g. projects/{{project}}/secrets/{{secret_id}}
-  secret         = google_secret_manager_secret.elastic_api_key.id
-  secret_data_wo = var.elastic_api_key
+  secret         = google_secret_manager_secret.exporter_api_key.id
+  secret_data_wo = var.ecf_exporter_api_key
 }
 
 # Create a standard artifact registry to store the ECF image.
@@ -78,7 +78,8 @@ resource "docker_tag" "tagged_w_dest" {
 resource "google_service_account" "artifact_registry_writer" {
   count = local.should_create_artifact_registry_repository ? 1 : 0
 
-  account_id   = substr("${var.ecf_asset_prefix}-artifact-rgst-wr", 0, 30)
+  # limit to 30 characters long and don't let it end on -
+  account_id   = trimsuffix(substr("${var.ecf_asset_prefix}-artifact-rgst-wr", 0, 30), "-")
   display_name = "Artifact Registry Writer"
   description  = "Service account for pushing ECF images to the ECF Artifact Registry"
 }
@@ -123,8 +124,8 @@ resource "docker_registry_image" "ecf_pushed_image" {
 # Create a service account to use in the google cloud run to grant the least
 # amount of privileges.
 resource "google_service_account" "cloud_run" {
-  # limit to 30 characters long
-  account_id = substr("${var.ecf_asset_prefix}-cloud-run", 0, 30)
+  # limit to 30 characters long and don't let it end on -
+  account_id = trimsuffix(substr("${var.ecf_asset_prefix}-cloud-run", 0, 30), "-")
 }
 
 # Grant Cloud Run service account permission to read from the module-managed artifact registry
@@ -154,27 +155,25 @@ resource "google_storage_bucket_iam_member" "cloud_run_permissions" {
   timeouts {
     create = "5m"
   }
+  depends_on = [google_storage_bucket.logs]
 }
 
-# Grant permission to cloud run service account for Elastic API key
-resource "google_secret_manager_secret_iam_member" "elastic_api_key" {
-
-  project   = google_secret_manager_secret.elastic_api_key.project
-  secret_id = google_secret_manager_secret.elastic_api_key.secret_id
+# Grant permission to cloud run service account for the exporter API key
+resource "google_secret_manager_secret_iam_member" "exporter_api_key" {
+  project   = google_secret_manager_secret.exporter_api_key.project
+  secret_id = google_secret_manager_secret.exporter_api_key.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.cloud_run.email}"
 }
 
 # Create a service account to use in the Pub/Sub subscription.
 resource "google_service_account" "pubsub" {
-
-  # limit to 30 characters long
-  account_id = substr("${var.ecf_asset_prefix}-pubsub", 0, 30)
+  # limit to 30 characters long and don't let it end on -
+  account_id = trimsuffix(substr("${var.ecf_asset_prefix}-pubsub", 0, 30), "-")
 }
 
 # Grant permissions to pubsub to invoke cloud run
 resource "google_cloud_run_v2_service_iam_member" "pubsub_permissions" {
-
   project  = google_cloud_run_v2_service.ecf.project
   location = google_cloud_run_v2_service.ecf.location
   name     = google_cloud_run_v2_service.ecf.name
@@ -184,12 +183,12 @@ resource "google_cloud_run_v2_service_iam_member" "pubsub_permissions" {
 
 # Create Pub/Sub topic for logs.
 resource "google_pubsub_topic" "logs" {
-  name = "${var.ecf_asset_prefix}-logs-ecf"
+  name = "${var.ecf_asset_prefix}-logs"
 }
 
 # Create Pub/Sub dead letter topic.
 resource "google_pubsub_topic" "dead_letter" {
-  name = "${var.ecf_asset_prefix}-dead-letter-ecf"
+  name = "${var.ecf_asset_prefix}-dead-letter"
 }
 
 # Create a GCS bucket for logs.
@@ -263,6 +262,7 @@ resource "google_cloud_run_v2_service" "ecf" {
           "cpu"    = var.ecf_container_cpu
           "memory" = var.ecf_container_memory
         }
+        cpu_idle = var.ecf_cpu_idle
       }
 
       ports {
@@ -278,8 +278,8 @@ resource "google_cloud_run_v2_service" "ecf" {
         name = "ELASTIC_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.elastic_api_key.secret_id
-            version = google_secret_manager_secret_version.elastic_api_key.version
+            secret  = google_secret_manager_secret.exporter_api_key.secret_id
+            version = google_secret_manager_secret_version.exporter_api_key.version
           }
         }
       }
@@ -309,11 +309,6 @@ resource "google_cloud_run_v2_service" "ecf" {
       }
 
       env {
-        name  = "EXPORTER"
-        value = "otlphttp"
-      }
-
-      env {
         name = "TELEMETRY_API_KEY"
         dynamic "value_source" {
           for_each = var.enable_telemetry ? [1] : []
@@ -334,11 +329,11 @@ resource "google_cloud_run_v2_service" "ecf" {
   }
 
   depends_on = [
-    google_secret_manager_secret_version.elastic_api_key,
+    google_secret_manager_secret_version.exporter_api_key,
     google_secret_manager_secret_version.telemetry_api_key,
     google_project_iam_member.cloud_run_permissions,
     google_storage_bucket_iam_member.cloud_run_permissions,
-    google_secret_manager_secret_iam_member.elastic_api_key,
+    google_secret_manager_secret_iam_member.exporter_api_key,
     google_secret_manager_secret_iam_member.telemetry_api_key,
     google_artifact_registry_repository_iam_member.cloud_run_artifact_registry_reader,
   ]
@@ -354,7 +349,7 @@ resource "google_pubsub_topic_iam_member" "dead_letter_publisher" {
 
 # Trigger cloud run when message is published on the Pub/Sub topic.
 resource "google_pubsub_subscription" "logs" {
-  name  = "${var.ecf_asset_prefix}-logs-ecf"
+  name  = "${var.ecf_asset_prefix}-logs"
   topic = google_pubsub_topic.logs.id
 
   push_config {
@@ -390,7 +385,6 @@ resource "google_pubsub_subscription" "logs" {
 }
 
 resource "google_pubsub_subscription_iam_member" "dead_letter_subscriber" {
-
   subscription = google_pubsub_subscription.logs.id
   role         = "roles/pubsub.subscriber"
   member       = "serviceAccount:${local.pubsub_service_account}"
@@ -418,7 +412,7 @@ resource "google_storage_bucket_iam_member" "failed_messages_permissions" {
 
 # Define the dead letter Pub/Sub subscription.
 resource "google_pubsub_subscription" "dead_letter" {
-  name  = "${var.ecf_asset_prefix}-dead-letter-ecf"
+  name  = "${var.ecf_asset_prefix}-dead-letter"
   topic = google_pubsub_topic.dead_letter.id
 
   cloud_storage_config {

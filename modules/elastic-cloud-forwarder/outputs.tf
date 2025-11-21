@@ -14,14 +14,14 @@
 # permission is obtained from Elasticsearch B.V.
 
 
-output "elastic_api_key_secret_id" {
-  description = "Elastic API key secret ID for exporting logs via the Elastic Cloud Forwarder."
-  value       = google_secret_manager_secret.elastic_api_key.secret_id
+output "ecf_exporter_api_key_secret_id" {
+  description = "ECF exporter API key secret ID for exporting logs via the Elastic Cloud Forwarder."
+  value       = google_secret_manager_secret.exporter_api_key.secret_id
 }
 
-output "elastic_api_key_version" {
-  description = "Elastic API key version for exporting logs via the Elastic Cloud Forwarder."
-  value       = google_secret_manager_secret_version.elastic_api_key.version
+output "ecf_exporter_api_key_version" {
+  description = "ECF exporter API key version for exporting logs via the Elastic Cloud Forwarder."
+  value       = google_secret_manager_secret_version.exporter_api_key.version
 }
 
 output "ecf_docker_image_uri" {

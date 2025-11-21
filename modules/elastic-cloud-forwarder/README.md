@@ -39,11 +39,11 @@ No modules.
 | [google_pubsub_topic.logs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic) | resource |
 | [google_pubsub_topic_iam_member.allow_storage_to_pubsub](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic_iam_member) | resource |
 | [google_pubsub_topic_iam_member.dead_letter_publisher](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/pubsub_topic_iam_member) | resource |
-| [google_secret_manager_secret.elastic_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
+| [google_secret_manager_secret.exporter_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
 | [google_secret_manager_secret.telemetry_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
-| [google_secret_manager_secret_iam_member.elastic_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
+| [google_secret_manager_secret_iam_member.exporter_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.telemetry_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
-| [google_secret_manager_secret_version.elastic_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
+| [google_secret_manager_secret_version.exporter_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.telemetry_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_service_account.artifact_registry_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.cloud_run](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
@@ -62,13 +62,14 @@ No modules.
 | Name | Description | Type |
 |------|-------------|------|
 | <a name="input_dead_letter_to_gcs_interval"></a> [dead_letter_to_gcs_interval](#input_dead_letter_to_gcs_interval) | The maximum interval for flushing a failed message from the dead letter topic to GCS, in seconds. | `number` |
-| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. | `string` |
-| <a name="input_ecf_container_cpu"></a> [ecf_container_cpu](#input_ecf_container_cpu) | ECF Cloud Run container CPU. | `string` |
+| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. It must start with a lowercase letter and contain only lowercase letters and hyphens. | `string` |
+| <a name="input_ecf_container_cpu"></a> [ecf_container_cpu](#input_ecf_container_cpu) | ECF Cloud Run container CPU. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
 | <a name="input_ecf_container_memory"></a> [ecf_container_memory](#input_ecf_container_memory) | ECF Cloud Run container memory. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
+| <a name="input_ecf_cpu_idle"></a> [ecf_cpu_idle](#input_ecf_cpu_idle) | Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing. | `bool` |
+| <a name="input_ecf_exporter_api_key"></a> [ecf_exporter_api_key](#input_ecf_exporter_api_key) | ECF exporter API key for exporting logs via the Elastic Cloud Forwarder. | `string` |
 | <a name="input_ecf_exporter_endpoint"></a> [ecf_exporter_endpoint](#input_ecf_exporter_endpoint) | ECF exporter endpoint. | `string` |
-| <a name="input_elastic_api_key"></a> [elastic_api_key](#input_elastic_api_key) | Elastic API key for exporting logs via the Elastic Cloud Forwarder. | `string` |
 | <a name="input_enable_cloud_observability_logging"></a> [enable_cloud_observability_logging](#input_enable_cloud_observability_logging) | Enable Cloud Run logging to GCP Logs Explorer. When enabled, grants the Cloud Run service account the 'roles/logging.logWriter' role. Note: This increases costs. Disabled by default. | `bool` |
-| <a name="input_enable_telemetry"></a> [enable_telemetry](#input_enable_telemetry) | Whether to enable internal telemetry. | `bool` |
+| <a name="input_enable_telemetry"></a> [enable_telemetry](#input_enable_telemetry) | Whether to enable the ECF collector internal telemetry. | `bool` |
 | <a name="input_es_mapping_mode"></a> [es_mapping_mode](#input_es_mapping_mode) | Mapping mode to use on the otlphttp exporter. Only used if telemetry endpoint is for elasticsearch. | `string` |
 | <a name="input_force_ecf_artifact_registry"></a> [force_ecf_artifact_registry](#input_force_ecf_artifact_registry) | Force the use of the Artifact Registry managed by this module for the ECF image. | `bool` |
 | <a name="input_image"></a> [image](#input_image) | The collector image. | `string` |
@@ -81,9 +82,9 @@ No modules.
 | <a name="input_retry_maximum_attempts"></a> [retry_maximum_attempts](#input_retry_maximum_attempts) | The maximum attempts to deliver a given message to ECF collector. | `number` |
 | <a name="input_retry_maximum_backoff"></a> [retry_maximum_backoff](#input_retry_maximum_backoff) | The maximum delay between consecutive deliveries of a given message to ECF collector, in seconds. | `number` |
 | <a name="input_retry_minimum_backoff"></a> [retry_minimum_backoff](#input_retry_minimum_backoff) | The minimum delay between consecutive deliveries of a given message to ECF collector, in seconds. | `number` |
-| <a name="input_telemetry_additional_attributes"></a> [telemetry_additional_attributes](#input_telemetry_additional_attributes) | Additional attributes to add to the internal telemetry. | `map(string)` |
-| <a name="input_telemetry_api_key"></a> [telemetry_api_key](#input_telemetry_api_key) | API key for the telemetry endpoint. | `string` |
-| <a name="input_telemetry_endpoint"></a> [telemetry_endpoint](#input_telemetry_endpoint) | Endpoint to send the internal telemetry to. | `string` |
+| <a name="input_telemetry_additional_attributes"></a> [telemetry_additional_attributes](#input_telemetry_additional_attributes) | Additional attributes to add to the ECF collector internal telemetry. | `map(string)` |
+| <a name="input_telemetry_api_key"></a> [telemetry_api_key](#input_telemetry_api_key) | API key for the ECF collector internal telemetry endpoint. | `string` |
+| <a name="input_telemetry_endpoint"></a> [telemetry_endpoint](#input_telemetry_endpoint) | Endpoint to send the ECF collector internal telemetry to. | `string` |
 
 #### Outputs
 
@@ -92,9 +93,9 @@ No modules.
 | <a name="output_dead_letter_topic_id"></a> [dead_letter_topic_id](#output_dead_letter_topic_id) | ID of the Pub/Sub dead letter topic. |
 | <a name="output_ecf_cloud_run_service_account_email"></a> [ecf_cloud_run_service_account_email](#output_ecf_cloud_run_service_account_email) | Email of the Cloud Run service account. |
 | <a name="output_ecf_docker_image_uri"></a> [ecf_docker_image_uri](#output_ecf_docker_image_uri) | URI of the ECF Docker image. |
+| <a name="output_ecf_exporter_api_key_secret_id"></a> [ecf_exporter_api_key_secret_id](#output_ecf_exporter_api_key_secret_id) | ECF exporter API key secret ID for exporting logs via the Elastic Cloud Forwarder. |
+| <a name="output_ecf_exporter_api_key_version"></a> [ecf_exporter_api_key_version](#output_ecf_exporter_api_key_version) | ECF exporter API key version for exporting logs via the Elastic Cloud Forwarder. |
 | <a name="output_ecf_managed_artifact_registry_used"></a> [ecf_managed_artifact_registry_used](#output_ecf_managed_artifact_registry_used) | Whether the ECF Terraform module used its own artifact registry. |
-| <a name="output_elastic_api_key_secret_id"></a> [elastic_api_key_secret_id](#output_elastic_api_key_secret_id) | Elastic API key secret ID for exporting logs via the Elastic Cloud Forwarder. |
-| <a name="output_elastic_api_key_version"></a> [elastic_api_key_version](#output_elastic_api_key_version) | Elastic API key version for exporting logs via the Elastic Cloud Forwarder. |
 | <a name="output_failed_messages_bucket_name"></a> [failed_messages_bucket_name](#output_failed_messages_bucket_name) | Name of the GCS bucket to which failed messages are sent. |
 | <a name="output_google_cloud_run_v2_service_latest_created_revision"></a> [google_cloud_run_v2_service_latest_created_revision](#output_google_cloud_run_v2_service_latest_created_revision) | Revision of the google cloud run service |
 | <a name="output_google_cloud_run_v2_service_name"></a> [google_cloud_run_v2_service_name](#output_google_cloud_run_v2_service_name) | Name of the google cloud run service |
