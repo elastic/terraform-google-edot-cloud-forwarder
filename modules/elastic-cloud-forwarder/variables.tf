@@ -139,7 +139,7 @@ variable "ecf_container_cpu" {
 }
 
 variable "ecf_cpu_idle" {
-  description = "Determines whether CPU is only allocated during requests."
+  description = "Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing."
   type        = bool
   default     = true
 }

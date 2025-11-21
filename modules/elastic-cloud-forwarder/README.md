@@ -65,7 +65,7 @@ No modules.
 | <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. It must start with a lowercase letter and contain only lowercase letters and hyphens. | `string` |
 | <a name="input_ecf_container_cpu"></a> [ecf_container_cpu](#input_ecf_container_cpu) | ECF Cloud Run container CPU. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
 | <a name="input_ecf_container_memory"></a> [ecf_container_memory](#input_ecf_container_memory) | ECF Cloud Run container memory. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
-| <a name="input_ecf_cpu_idle"></a> [ecf_cpu_idle](#input_ecf_cpu_idle) | Determines whether CPU is only allocated during requests. | `bool` |
+| <a name="input_ecf_cpu_idle"></a> [ecf_cpu_idle](#input_ecf_cpu_idle) | Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing. | `bool` |
 | <a name="input_ecf_exporter_api_key"></a> [ecf_exporter_api_key](#input_ecf_exporter_api_key) | ECF exporter API key for exporting logs via the Elastic Cloud Forwarder. | `string` |
 | <a name="input_ecf_exporter_endpoint"></a> [ecf_exporter_endpoint](#input_ecf_exporter_endpoint) | ECF exporter endpoint. | `string` |
 | <a name="input_enable_cloud_observability_logging"></a> [enable_cloud_observability_logging](#input_enable_cloud_observability_logging) | Enable Cloud Run logging to GCP Logs Explorer. When enabled, grants the Cloud Run service account the 'roles/logging.logWriter' role. Note: This increases costs. Disabled by default. | `bool` |
