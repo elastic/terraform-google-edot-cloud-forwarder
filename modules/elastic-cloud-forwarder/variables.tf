@@ -43,12 +43,12 @@ variable "image" {
 }
 
 variable "ecf_asset_prefix" {
-  description = "Prefix for the ECF assets' names. It must start with a lowercase letter and contain only lowercase letters and hyphens."
+  description = "Prefix for the ECF assets' names. It must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen)."
   type        = string
   default     = "ecf"
   validation {
-    error_message = "ECF asset prefix must start with a lowercase letter and contain only lowercase letters and hyphens."
-    condition     = can(regex("^[a-z][a-z-]*$", var.ecf_asset_prefix))
+    error_message = "ECF asset prefix must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen)."
+    condition     = can(regex("^[a-z]([-a-z0-9]*[a-z0-9])?$", var.ecf_asset_prefix))
   }
 }
 
