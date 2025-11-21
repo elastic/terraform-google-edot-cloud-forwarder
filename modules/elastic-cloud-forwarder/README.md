@@ -62,7 +62,7 @@ No modules.
 | Name | Description | Type |
 |------|-------------|------|
 | <a name="input_dead_letter_to_gcs_interval"></a> [dead_letter_to_gcs_interval](#input_dead_letter_to_gcs_interval) | The maximum interval for flushing a failed message from the dead letter topic to GCS, in seconds. | `number` |
-| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. It must start with a lowercase letter and contain only lowercase letters and hyphens. | `string` |
+| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. It must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen). | `string` |
 | <a name="input_ecf_container_cpu"></a> [ecf_container_cpu](#input_ecf_container_cpu) | ECF Cloud Run container CPU. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
 | <a name="input_ecf_container_memory"></a> [ecf_container_memory](#input_ecf_container_memory) | ECF Cloud Run container memory. Check https://cloud.google.com/run/docs/configuring/services/memory-limits#cpu-minimum. | `string` |
 | <a name="input_ecf_cpu_idle"></a> [ecf_cpu_idle](#input_ecf_cpu_idle) | Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing. | `bool` |
