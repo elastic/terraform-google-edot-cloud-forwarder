@@ -16,10 +16,11 @@
 name: changelog-fragments
 
 on:
-  # TODO constanca-m Enable before tech preview
-  #pull_request:
-  #  branches:
-  #    - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - modules/elastic-cloud-forwarder/*.tf
 
 jobs:
   changelog-fragments:
