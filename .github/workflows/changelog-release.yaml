@@ -1,0 +1,58 @@
+# ELASTICSEARCH CONFIDENTIAL
+# __________________
+#
+#  Copyright Elasticsearch B.V. All rights reserved.
+#
+# NOTICE:  All information contained herein is, and remains
+# the property of Elasticsearch B.V. and its suppliers, if any.
+# The intellectual and technical concepts contained herein
+# are proprietary to Elasticsearch B.V. and its suppliers and
+# may be covered by U.S. and Foreign Patents, patents in
+# process, and are protected by trade secret or copyright
+# law.  Dissemination of this information or reproduction of
+# this material is strictly forbidden unless prior written
+# permission is obtained from Elasticsearch B.V.
+
+name: changelog-release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .chloggen/*.yaml # only if a new changelog fragment was added
+
+jobs:
+  changelog-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # dismiss PRs from dependabot, elastic-renovate-prod and elastic-observability-automation
+    if: ${{ github.actor != 'dependabot[bot]' && github.actor != 'elastic-renovate-prod[bot]' && github.actor != 'elastic-observability-automation'}}
+    steps:
+      - name: Get token to checkout on the repository and to create a PR
+        id: get_token
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2
+        with:
+          app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Set up Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6
+        id: go-setup
+        with:
+          cache-dependency-path: "**/*.sum"
+          go-version-file: 'tools/go.mod'
+
+      # If there is no cache with the go tools, install them.
+      - name: Install tools
+        if: steps.go-setup.outputs.cache-hit != 'true'
+        run: |
+          make install-tools
+
+      - name: Create/update release PR
+        shell: bash
+        run: ./.github/scripts/create_release_pr.sh

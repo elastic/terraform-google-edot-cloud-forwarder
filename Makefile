@@ -8,6 +8,10 @@ TOOLS_BIN_NAMES := $(addprefix $(TOOLS_BIN_DIR)/, $(notdir $(TOOLS_PKG_NAMES)))
 LICENSE := $(TOOLS_BIN_DIR)/addlicense
 TFLINT := $(TOOLS_BIN_DIR)/tflint
 TFDOCS := $(TOOLS_BIN_DIR)/terraform-docs
+CHLOGGEN := $(TOOLS_BIN_DIR)/chloggen
+
+CHLOGGEN_CONFIG  := .chloggen/config.yaml
+VERSION := 0.1.0
 
 SHELL := /bin/bash
 
@@ -71,3 +75,24 @@ checks:
 	@$(MAKE) --no-print-directory tflint || exit 1
 	@$(MAKE) --no-print-directory check-tfdocs || exit 1
 	@$(MAKE) --no-print-directory check-license || exit 1
+
+# ===================================================================================
+# Commands for the changelog.
+# ===================================================================================
+
+FILENAME?=$(shell git branch --show-current)
+.PHONY: chlog-new
+chlog-new: $(CHLOGGEN)
+	$(CHLOGGEN) new --config $(CHLOGGEN_CONFIG) --filename $(FILENAME)
+
+.PHONY: chlog-validate
+chlog-validate: $(CHLOGGEN)
+	$(CHLOGGEN) validate --config $(CHLOGGEN_CONFIG)
+
+.PHONY: chlog-preview
+chlog-preview: $(CHLOGGEN)
+	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --dry --version $(VERSION)
+
+.PHONY: chlog-update
+chlog-update: $(CHLOGGEN)
+	$(CHLOGGEN) update --config $(CHLOGGEN_CONFIG) --version $(VERSION)

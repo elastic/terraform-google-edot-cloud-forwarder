@@ -24,4 +24,6 @@ import (
 	_ "github.com/terraform-linters/tflint"
 
 	_ "github.com/terraform-docs/terraform-docs"
+
+	_ "go.opentelemetry.io/build-tools/chloggen"
 )
