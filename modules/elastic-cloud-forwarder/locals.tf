@@ -38,4 +38,27 @@ locals {
   )
 
   pubsub_service_account = "service-${data.google_project.current.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+
+  # get value of memory as a number and get the unit as well
+  ecf_memory_numeric_value_str = regex("[0-9\\.]+", var.ecf_container_memory)
+  ecf_memory_numeric_value     = tonumber(local.ecf_memory_numeric_value_str)
+  unit_suffix_clean            = upper(trimprefix(var.ecf_container_memory, local.ecf_memory_numeric_value_str))
+
+  # see supported unit values in
+  # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service#limits-1
+  memory_in_mib = (
+    startswith(local.unit_suffix_clean, "K") ? local.ecf_memory_numeric_value / 1024 :
+    startswith(local.unit_suffix_clean, "M") ? local.ecf_memory_numeric_value :
+    startswith(local.unit_suffix_clean, "G") ? local.ecf_memory_numeric_value * 1024 :
+    startswith(local.unit_suffix_clean, "T") ? local.ecf_memory_numeric_value * 1024 * 1024 :
+    startswith(local.unit_suffix_clean, "P") ? local.ecf_memory_numeric_value * 1024 * 1024 * 1024 :
+    startswith(local.unit_suffix_clean, "E") ? local.ecf_memory_numeric_value * 1024 * 1024 * 1024 * 1024 :
+    # Assume MiB if no unit specified
+    local.ecf_memory_numeric_value
+  )
+
+  # Calculate 90% and use MiB (Go's preferred unit)
+  gomemlimit_mib = floor(local.memory_in_mib * 0.9)
+  # see the supported suffixes for GOMEMLIMIT: run $(go doc runtime/debug.SetMemoryLimit)
+  gomemlimit_value = "${local.gomemlimit_mib}MiB"
 }
