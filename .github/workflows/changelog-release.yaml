@@ -56,3 +56,5 @@ jobs:
       - name: Create/update release PR
         shell: bash
         run: ./.github/scripts/create_release_pr.sh
+        env:
+          GH_TOKEN: ${{ steps.get_token.outputs.token }}
