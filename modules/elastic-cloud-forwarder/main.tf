@@ -325,6 +325,11 @@ resource "google_cloud_run_v2_service" "ecf" {
         name  = "ADDITIONAL_TELEMETRY_ATTR"
         value = length(var.telemetry_additional_attributes) == 0 ? "" : yamlencode(var.telemetry_additional_attributes)
       }
+
+      env {
+        name  = "GOMEMLIMIT"
+        value = local.gomemlimit_value
+      }
     }
   }
 
