@@ -24,6 +24,9 @@ on:
     paths:
       - .chloggen/*.yaml # only if a new changelog fragment was added
 
+permissions:
+  id-token: write
+
 jobs:
   changelog-release:
     runs-on: ubuntu-latest
