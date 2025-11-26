@@ -55,9 +55,12 @@ jobs:
         run: |
           make install-tools
 
+      - uses: elastic/oblt-actions/git/setup@v1
+        with:
+          github-token: ${{ steps.fetch-token.outputs.token }}
+
       - name: Create/update release PR
         shell: bash
         run: ./.github/scripts/create_release_pr.sh
         env:
           GH_TOKEN: ${{ steps.fetch-token.outputs.token }}
-          GITHUB_TOKEN: ${{ steps.fetch-token.outputs.token }}
