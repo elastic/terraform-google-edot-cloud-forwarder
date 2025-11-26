@@ -1,11 +1,5 @@
 {
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-    "packages": {
-        ".": {
-            "release-type": "terraform-module",
-            "bump-minor-pre-major": true,
-            "bump-patch-for-minor-pre-major": true,
-            "versioning": "default"
-        }
-    }
+    "release-type": "terraform-module",
+    "packages": {}
 }
