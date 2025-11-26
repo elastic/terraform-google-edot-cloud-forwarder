@@ -16,8 +16,6 @@
 name: release-please
 
 on:
-  # TODO just to test
-  pull_request:
   push:
     branches:
       - main
