@@ -6,7 +6,6 @@ require (
 	github.com/google/addlicense v1.2.0
 	github.com/terraform-docs/terraform-docs v0.20.0
 	github.com/terraform-linters/tflint v0.59.1
-	go.opentelemetry.io/build-tools/chloggen v0.29.0
 )
 
 require (
@@ -140,6 +139,7 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/terraform-docs/terraform-config-inspect v0.0.0-20210728164355-9c1f178932fa // indirect
 	github.com/terraform-linters/tflint-plugin-sdk v0.22.0 // indirect
