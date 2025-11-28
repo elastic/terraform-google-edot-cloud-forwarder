@@ -1,0 +1,45 @@
+# ELASTICSEARCH CONFIDENTIAL
+# __________________
+#
+#  Copyright Elasticsearch B.V. All rights reserved.
+#
+# NOTICE:  All information contained herein is, and remains
+# the property of Elasticsearch B.V. and its suppliers, if any.
+# The intellectual and technical concepts contained herein
+# are proprietary to Elasticsearch B.V. and its suppliers and
+# may be covered by U.S. and Foreign Patents, patents in
+# process, and are protected by trade secret or copyright
+# law.  Dissemination of this information or reproduction of
+# this material is strictly forbidden unless prior written
+# permission is obtained from Elasticsearch B.V.
+
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Fetch ephemeral GitHub token
+        id: fetch-token
+        uses: elastic/ci-gh-actions/fetch-github-token@v1.0.0
+        with:
+          vault-instance: "ci-prod"
+
+      - uses: googleapis/release-please-action@v4
+        id: release-please
+        with:
+          token: ${{ steps.fetch-token.outputs.token }}
+          config-file: .github/release-please-config.json
+          manifest-file: .github/.release-please-manifest.json
