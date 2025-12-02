@@ -4,30 +4,24 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
-| <a name="requirement_docker"></a> [docker](#requirement_docker) | >= 3.0 |
 | <a name="requirement_google"></a> [google](#requirement_google) | >= 7.0.0 |
 
 #### Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_docker"></a> [docker](#provider_docker) | >= 3.0 |
 | <a name="provider_google"></a> [google](#provider_google) | >= 7.0.0 |
 
 #### Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_artifact_registry"></a> [artifact_registry](#module_artifact_registry) | ./artifact-registry | n/a |
 
 #### Resources
 
 | Name | Type |
 |------|------|
-| [docker_image.ecf_public_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/image) | resource |
-| [docker_registry_image.ecf_pushed_image](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/registry_image) | resource |
-| [docker_tag.tagged_w_dest](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/tag) | resource |
-| [google_artifact_registry_repository.ecf](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository) | resource |
-| [google_artifact_registry_repository_iam_member.artifact_registry_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
-| [google_artifact_registry_repository_iam_member.cloud_run_artifact_registry_reader](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
 | [google_cloud_run_v2_service.ecf](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
 | [google_cloud_run_v2_service_iam_member.pubsub_permissions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service_iam_member) | resource |
 | [google_project_iam_member.allow_token](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
@@ -45,10 +39,8 @@ No modules.
 | [google_secret_manager_secret_iam_member.telemetry_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_version.exporter_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.telemetry_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
-| [google_service_account.artifact_registry_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.cloud_run](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.pubsub](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
-| [google_service_account_key.artifact_registry_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_key) | resource |
 | [google_storage_bucket.failed_messages](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 | [google_storage_bucket.logs](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 | [google_storage_bucket_iam_member.cloud_run_permissions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam_member) | resource |

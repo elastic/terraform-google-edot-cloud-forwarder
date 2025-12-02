@@ -36,7 +36,9 @@ output "ecf_cloud_run_service_account_email" {
 
 output "ecf_managed_artifact_registry_used" {
   description = "Whether the ECF Terraform module used its own artifact registry."
-  value       = local.should_create_artifact_registry_repository
+  # We check the length of the module instead of the local variable create_artifact_registry
+  # so the output depends on the creation of the module.
+  value = length(module.artifact_registry) == 1
 }
 
 output "pubsub_google_service_account_email" {
