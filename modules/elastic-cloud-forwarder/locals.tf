@@ -20,16 +20,12 @@ locals {
   )
 
   # Unless forced, don't create the artifact registry repository 
-  #if the image is already from an artifact registry.
-  should_create_artifact_registry_repository = var.force_ecf_artifact_registry || !local.is_artifact_registry_image
+  # if the image is already from an artifact registry.
+  create_artifact_registry = var.force_ecf_artifact_registry || !local.is_artifact_registry_image
 
-  # use the pushed image if the artifact registry repository was created, 
-  # otherwise use the original image
-  ecf_image_name = (
-    local.should_create_artifact_registry_repository
-    ? docker_registry_image.ecf_pushed_image[0].name
-    : var.image
-  )
+  # Use the pushed image if the artifact registry repository was created,
+  # otherwise use the original image.
+  ecf_image_name = length(module.artifact_registry) == 1 ? module.artifact_registry[0].image : var.image
 
   logs_source_bucket_name = (
     var.logs_source_bucket_name == ""

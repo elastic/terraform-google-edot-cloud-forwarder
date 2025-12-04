@@ -13,12 +13,7 @@
 # this material is strictly forbidden unless prior written
 # permission is obtained from Elasticsearch B.V.
 
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = ">= 7.0.0"
-    }
-  }
+output "image" {
+  description = "ECF image name."
+  value       = docker_registry_image.ecf_pushed_image.name
 }
