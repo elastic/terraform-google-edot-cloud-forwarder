@@ -139,7 +139,12 @@ variable "ecf_container_cpu" {
 }
 
 variable "ecf_cpu_idle" {
-  description = "Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing."
+  description = <<EOT
+Determines whether CPU is only allocated during requests. If set to true, billing is request-based, otherwise instance-based.
+Request-based billing is recommended when incoming traffic is sporadic, bursty or spiky.
+Instance-based billing is recommended when incoming traffic is steady, slowly varying.
+See https://docs.cloud.google.com/run/docs/configuring/billing-settings#choosing-traffic.
+EOT
   type        = bool
   default     = true
 }
