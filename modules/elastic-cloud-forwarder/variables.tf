@@ -179,7 +179,7 @@ variable "retry_minimum_backoff" {
 variable "retry_maximum_backoff" {
   description = "The maximum delay between consecutive deliveries of a given message to ECF collector, in seconds."
   type        = number
-  default     = 60
+  default     = 600
 
   validation {
     error_message = "Retry maximum backoff must have a value between 0 and 600, and equal or higher than retry_minimum_backoff."
