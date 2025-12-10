@@ -20,7 +20,7 @@ version: 0.20.0
 recursive:
   enabled: true
   path: modules
-  include-main: false
+  include-main: true
 
 sections:
   show:

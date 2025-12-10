@@ -1,22 +1,35 @@
 # Artifact Registry Submodule
 
-This submodule creates a private Google Artifact Registry repository and manages ECF Docker images for improved reliability.
+This submodule creates a private Google Artifact Registry repository and manages ECF Docker images for improved reliability and security.
 
 ## Purpose
 
-- Immutable snapshots: Creates immutable copies of ECF images to protect against upstream changes.
-- Availability: Eliminates dependency on external registries (Docker Hub rate limits, outages).
+- Immutable snapshots: Creates immutable copies of ECF images to protect against upstream changes
+- Availability: Eliminates dependency on external registries (Docker Hub rate limits, outages)
+- Security: Provides private image storage with controlled access
+- Performance: Regional image storage for faster container startup
 
 ## Usage
 
 This submodule is automatically used by the parent module when:
 - `force_ecf_artifact_registry = true`, or  
-- The source `image` is from a public registry (not already in Artifact Registry).
+- The source `image` is from a public registry (not already in Artifact Registry)
+
+## Resources Created
+
+- Google Artifact Registry repository
+- Service accounts for registry access
+- IAM bindings for least-privilege access
+- Docker image pull, tag, and push operations
 
 ## Cleanup Policy
 
 - Automatically keeps the 3 most recently used images
 - Removes older images to control storage costs
+
+## Technical Reference
+
+The following sections provide detailed technical information about this submodule's requirements, resources, inputs, and outputs.
 
 <!-- BEGIN_TF_DOCS -->
 #### Requirements
