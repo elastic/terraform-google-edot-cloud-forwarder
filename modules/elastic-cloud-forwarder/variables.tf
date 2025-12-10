@@ -38,8 +38,7 @@ variable "ecf_exporter_api_key" {
 variable "image" {
   description = "The collector image."
   type        = string
-  # TODO: set default to the actual image when this is ready
-  # default     = "docker.elastic.co/..."
+  default     = "docker.elastic.co/observability/edot-cloud-forwarder-gcp:0.1.0"
 }
 
 variable "ecf_asset_prefix" {
