@@ -15,13 +15,6 @@ This submodule is automatically used by the parent module when:
 - `force_ecf_artifact_registry = true`, or  
 - The source `image` is from a public registry (not already in Artifact Registry)
 
-## Resources Created
-
-- Google Artifact Registry repository
-- Service accounts for registry access
-- IAM bindings for least-privilege access
-- Docker image pull, tag, and push operations
-
 ## Cleanup Policy
 
 - Automatically keeps the 3 most recently used images
