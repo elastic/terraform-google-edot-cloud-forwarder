@@ -116,7 +116,7 @@ The following sections provide detailed technical information about this submodu
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_artifact_registry"></a> [artifact_registry](#module_artifact_registry) | modules/artifact-registry | n/a |
+| <a name="module_artifact_registry"></a> [artifact_registry](#module_artifact_registry) | ./modules/artifact-registry | n/a |
 
 #### Resources
 
