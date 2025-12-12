@@ -20,7 +20,6 @@ module "elastic_cloud_forwarder" {
 
   project               = "my-gcp-project"
   region                = "us-central1"
-  image                 = "docker.elastic.co/observability/elastic-cloud-forwarder:latest"
   ecf_exporter_endpoint = "https://my-deployment.es.us-central1.gcp.cloud.es.io:443"
   ecf_exporter_api_key  = var.elastic_api_key
 }
@@ -35,7 +34,6 @@ module "elastic_cloud_forwarder" {
   # Required parameters
   project               = "my-gcp-project"
   region                = "us-central1"
-  image                 = "docker.elastic.co/observability/elastic-cloud-forwarder:latest"
   ecf_exporter_endpoint = "https://my-deployment.es.us-central1.gcp.cloud.es.io:443"
   ecf_exporter_api_key  = var.elastic_api_key
 
