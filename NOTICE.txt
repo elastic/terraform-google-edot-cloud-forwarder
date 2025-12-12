@@ -1,0 +1,3 @@
+Terraform Google Elastic Cloud Forwarder
+
+Copyright 2025 Elasticsearch B.V.
