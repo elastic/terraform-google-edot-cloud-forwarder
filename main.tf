@@ -137,7 +137,7 @@ resource "google_project_iam_member" "allow_token" {
 # Create the artifact registry with ECF image, if needed.
 module "artifact_registry" {
   count                           = local.create_artifact_registry ? 1 : 0
-  source                          = "./artifact-registry"
+  source                          = "./modules/artifact-registry"
   cloud_run_service_account_email = google_service_account.cloud_run.email
   ecf_asset_prefix                = var.ecf_asset_prefix
   image                           = var.image

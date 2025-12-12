@@ -38,8 +38,7 @@ variable "ecf_exporter_api_key" {
 variable "image" {
   description = "The collector image."
   type        = string
-  # TODO: set default to the actual image when this is ready
-  # default     = "docker.elastic.co/..."
+  default     = "docker.elastic.co/observability/edot-cloud-forwarder-gcp:0.1.0"
 }
 
 variable "ecf_asset_prefix" {
@@ -139,7 +138,12 @@ variable "ecf_container_cpu" {
 }
 
 variable "ecf_cpu_idle" {
-  description = "Determines whether CPU is only allocated during requests. Set to true to prevent allocation of CPU outside of request processing."
+  description = <<EOT
+Determines whether CPU is only allocated during requests. If set to true, billing is request-based, otherwise instance-based.
+Request-based billing is recommended when incoming traffic is sporadic, bursty or spiky.
+Instance-based billing is recommended when incoming traffic is steady, slowly varying.
+See https://docs.cloud.google.com/run/docs/configuring/billing-settings#choosing-traffic.
+EOT
   type        = bool
   default     = true
 }
@@ -174,7 +178,7 @@ variable "retry_minimum_backoff" {
 variable "retry_maximum_backoff" {
   description = "The maximum delay between consecutive deliveries of a given message to ECF collector, in seconds."
   type        = number
-  default     = 60
+  default     = 600
 
   validation {
     error_message = "Retry maximum backoff must have a value between 0 and 600, and equal or higher than retry_minimum_backoff."
