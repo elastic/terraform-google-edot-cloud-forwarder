@@ -27,8 +27,8 @@ resource "google_secret_manager_secret" "exporter_api_key" {
 resource "google_secret_manager_secret_version" "exporter_api_key" {
   # Note that this is not the secret_id, but the secret's resource identifier,
   # e.g. projects/{{project}}/secrets/{{secret_id}}
-  secret         = google_secret_manager_secret.exporter_api_key.id
-  secret_data_wo = var.ecf_exporter_api_key
+  secret      = google_secret_manager_secret.exporter_api_key.id
+  secret_data = var.ecf_exporter_api_key
 }
 
 # Create a service account to use in the google cloud run to grant the least
