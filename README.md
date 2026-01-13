@@ -16,7 +16,7 @@ The module deploys everything except for the `Elastic Cloud` section, as it expe
 
 ```hcl
 module "elastic_cloud_forwarder" {
-  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.0"
+  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.1"
 
   project               = "my-gcp-project"
   region                = "us-central1"
@@ -29,7 +29,7 @@ module "elastic_cloud_forwarder" {
 
 ```hcl
 module "elastic_cloud_forwarder" {
-  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.0"
+  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.1"
 
   # Required parameters
   project               = "my-gcp-project"
@@ -68,7 +68,7 @@ module "elastic_cloud_forwarder" {
 
 ```hcl
 module "elastic_cloud_forwarder" {
-  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.0"
+  source = "github.com/elastic/terraform-google-edot-cloud-forwarder?ref=v0.1.1"
 
   project                     = "my-gcp-project"
   region                      = "us-central1"
