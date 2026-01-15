@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.1...v0.1.2) (2026-01-15)
+
+
+### ✨ New Features
+
+* Update default collector image and readme ([#25](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/25)) ([db7ead8](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/db7ead8ff3ec4c2b48941c3fb343dceb1b7731e6))
+
 ## [0.1.1](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.0...v0.1.1) (2025-12-12)
 
 
