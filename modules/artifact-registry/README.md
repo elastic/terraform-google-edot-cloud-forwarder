@@ -62,7 +62,7 @@ No modules.
 | Name | Description | Type |
 |------|-------------|------|
 | <a name="input_cloud_run_service_account_email"></a> [cloud_run_service_account_email](#input_cloud_run_service_account_email) | Cloud Run service account email. | `string` |
-| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. It must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen). | `string` |
+| <a name="input_ecf_asset_prefix"></a> [ecf_asset_prefix](#input_ecf_asset_prefix) | Prefix for the ECF assets' names. Multiple simultaneous deployments should have different prefixes, otherwise, name collisions and associated failures will occur. The prefix must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen). | `string` |
 | <a name="input_image"></a> [image](#input_image) | The collector image. | `string` |
 | <a name="input_project"></a> [project](#input_project) | The name of the Google Cloud Platform project in which to create the resources. | `string` |
 | <a name="input_region"></a> [region](#input_region) | The Google Cloud Platform region in which to create the resources. | `string` |
