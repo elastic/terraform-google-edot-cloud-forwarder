@@ -24,7 +24,7 @@ variable "region" {
 }
 
 variable "ecf_asset_prefix" {
-  description = "Prefix for the ECF assets' names. It must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen)."
+  description = "Prefix for the ECF assets' names. Multiple simultaneous deployments should have different prefixes, otherwise, name collisions and associated failures will occur. The prefix must start with a lowercase letter; contain only lowercase letters, numbers, and hyphens; and end with a lowercase letter or number (not a hyphen)."
   type        = string
 }
 
