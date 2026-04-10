@@ -163,10 +163,10 @@ resource "google_cloud_run_v2_service" "ecf" {
     containers {
       name  = "ecf-collector"
       image = local.ecf_image_name
-      args = [
+      args = compact([
         # See https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/rfcs/component-universal-telemetry.md
         var.enable_telemetry ? "--feature-gates=telemetry.newPipelineTelemetry" : "",
-      ]
+      ])
 
       resources {
         limits = {
