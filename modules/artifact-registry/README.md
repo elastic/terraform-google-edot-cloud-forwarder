@@ -29,7 +29,7 @@ The following sections provide detailed technical information about this submodu
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.9.0 |
 | <a name="requirement_docker"></a> [docker](#requirement_docker) | >= 3.0 |
 | <a name="requirement_google"></a> [google](#requirement_google) | >= 7.0.0 |
 
