@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.3](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.2...v0.1.3) (2026-04-14)
+
+
+### 🐛 Bug Fixes
+
+* perpetualdiff ([#29](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/29)) ([7d73e76](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/7d73e76d14eb08c15d74ba1b846706552c32bfc0))
+
+
+### ✨ New Features
+
+* bump collector image to 0.1.3 ([07952c3](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/07952c3c07fb808d81e58a59255f3f18615abcb3))
+
+
+### 🧹 Chore
+
+* bump copyright to 2026 ([#32](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/32)) ([d743c79](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/d743c793a604ad1f4eefe9eda44110db33b566da))
+* bump required_version to &gt;= 1.9.0 ([#30](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/30)) ([0728284](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/0728284d7b5b4f277eff112c5a45c42f4f0b1efb))
+
+
+### 📚 Documentation
+
+* Add detail to the ECF prefix variables' description ([#27](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/27)) ([0f493f4](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/0f493f484c10f1bf4dd8d78116991aed33582366))
+
 ## [0.1.2](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.1...v0.1.2) (2026-01-15)
 
 
