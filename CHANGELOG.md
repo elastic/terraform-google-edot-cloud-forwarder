@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.3...v0.1.4) (2026-06-23)
+
+
+### 🧹 Chore
+
+* upgrade fetch-github-token to v1.5.3 ([#33](https://github.com/elastic/terraform-google-edot-cloud-forwarder/issues/33)) ([2233912](https://github.com/elastic/terraform-google-edot-cloud-forwarder/commit/2233912bc4582038a1a052bbcca1963b0a00c78a))
+
 ## [0.1.3](https://github.com/elastic/terraform-google-edot-cloud-forwarder/compare/v0.1.2...v0.1.3) (2026-04-14)
 
 
