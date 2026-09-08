@@ -22,7 +22,7 @@
 resource "google_artifact_registry_repository" "ecf" {
   location      = var.region
   repository_id = "${var.ecf_asset_prefix}-ecf"
-  description   = "Docker image registry for EDOT Cloud Forwarder"
+  description   = "Docker image registry for Elastic Cloud Forwarder"
   format        = "DOCKER"
 
   provisioner "local-exec" {
